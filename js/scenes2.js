@@ -175,12 +175,14 @@ function drawHandsCloseup(t) {
 
   g.save();
   g.translate(192, 124); g.scale(1.5, 1.5); g.translate(-192, -124);
-  // the row of seats
+  // plush cinema seats with rounded tops
   for (const cx of [96, 160, 224, 288]) {
-    px(cx - 26, 78, 52, 74, '#3e1b28');
-    px(cx - 23, 82, 46, 66, '#4c2432');
-    px(cx - 23, 82, 46, 2, '#5e3040');
+    px(cx - 26, 84, 52, 68, '#4a2334');
+    px(cx - 22, 79, 44, 8, '#4a2334');
+    px(cx - 20, 85, 40, 60, '#5e3042');
+    px(cx - 20, 85, 40, 2, '#754055');
   }
+  glow(192, 118, 80, '#ff9dab', 0.07);
   // neighbours, lost in the film
   dimFront(96, t); dimFront(288, t + 3);
 
@@ -229,8 +231,8 @@ function drawHandsCloseup(t) {
   px(120, 126, 6, 9, '#c84a4a'); px(121, 124, 4, 2, '#e8e2d2'); px(123, 118, 1, 7, '#e8e2d2');
   miniHand(136, 130, -1, skinB);
   // arms reaching to the middle
-  armTo(160, 1, bx + 3, 133, PAL.bShirtD);
-  armTo(224, -1, hx2 - 3, hy2 + 3, PAL.gDressD);
+  armTo(160, 1, bx + 3, 133, PAL.bShirtD, 120);
+  armTo(224, -1, hx2 - 3, hy2 + 3, PAL.gDressD, 125);
   // his hand: creeps, flips open
   if (flip <= 0) miniHand(bx, 131 + sq, 1, skinB);
   else if (flip < 0.45) { px(bx, 129, 4, 9, mix(skinB, '#5c3a2a', 0.25)); px(bx + 3, 132, 8, 4, skinB); }
@@ -247,13 +249,15 @@ function drawHandsCloseup(t) {
     }
     px(hx2 - 8 + stroke, hy2 + 5 + sq, 5, 2.5, skinB);
   }
-  // sparks of contact + a shy heart
+  // sparks of contact + shy little hearts
   sparkle(197, 130, 1.5 + pulse(t, 22.5, 22.7, 23.2, 23.8) * 1.5, '#ffd7de', pulse(t, 22.5, 22.7, 23.4, 24.2));
-  if (t > 31.4) sparkle(192, 120, 2.2, '#ffd7de', pulse(t, 31.4, 31.8, 32.4, 33));
-  const hr = seg(t, 31.9, 33.1);
-  if (hr > 0 && hr < 1) heartSpr(192, 121 - hr * 12, 1.3, 0.5 * (1 - hr * 0.5));
-  glow(160, 103, 26, '#8ea6c8', 0.12 * fl);         // screen light on their faces
-  glow(224, 103, 26, '#8ea6c8', 0.12 * fl);
+  if (t > 29.2 && t < 33) for (let i = 0; i < 3; i++) {
+    const hu = ((t - 29.2) * 0.45 + i * 0.33) % 1;
+    heartSpr(180 + i * 12 + Math.sin(t * 2 + i * 2.1) * 3, 120 - hu * 24, 1.1, 0.35 * (1 - hu));
+  }
+  if (t > 31.4) sparkle(192, 118, 2.2, '#ffd7de', pulse(t, 31.4, 31.8, 32.4, 33));
+  glow(160, 103, 26, '#ffcfae', 0.12 * fl);         // screen light on their faces
+  glow(224, 107, 26, '#ffcfae', 0.12 * fl);
   g.restore();
 
   // the row in front, dark
@@ -271,33 +275,58 @@ function frontPerson(cx, o) {
   const hair = boy ? PAL.bHair : PAL.gHair;
   const top = boy ? PAL.bShirt : PAL.gDress;
   const topD = boy ? PAL.bShirtD : PAL.gDressD;
-  px(cx - 10, 118, 20, 34, top);
-  px(cx - 10, 118, 20, 2, mix(top, '#ffffff', 0.2));
-  px(cx - 10, 118, 3, 34, topD);
-  px(cx - 2, 114, 5, 5, skin);                       // neck
-  px(cx - 6, 96, 13, 13, skin);                      // face
+  const y0 = boy ? 96 : 101;                          // she's a head shorter
+  // torso
+  px(cx - 10, y0 + 22, 20, 56 - (y0 - 96) - 22, top);
+  px(cx - 10, y0 + 22, 20, 2, mix(top, '#ffffff', 0.25));
+  px(cx - 10, y0 + 22, 3, 34, topD);
+  px(cx - 2, y0 + 18, 5, 5, skin);                    // neck
+  // soft rounded face
+  px(cx - 5, y0, 11, 13, skin);
+  px(cx - 6, y0 + 1, 13, 11, skin);
   if (boy) {
-    px(cx - 6, 96, 13, 4, hair);
-    px(cx - 7, 96, 2, 9, hair); px(cx + 6, 96, 2, 9, hair);
+    px(cx - 5, y0 - 2, 11, 4, hair);                  // swept-up top
+    px(cx - 6, y0 + 1, 13, 2, hair);
+    px(cx - 7, y0 + 1, 2, 8, hair); px(cx + 6, y0 + 1, 2, 8, hair);
+    px(cx - 3, y0 - 2, 5, 1, PAL.bHairL);             // shine
+    px(cx + 1, y0 + 2, 4, 2, hair);                   // fringe sweep
   } else {
-    px(cx - 6, 96, 13, 4, hair);
-    px(cx - 9, 96, 3, 24, hair); px(cx + 7, 96, 3, 24, hair);
-    px(cx - 3, 99, 4, 2, hair);
+    px(cx - 5, y0 - 1, 11, 4, hair);
+    px(cx - 6, y0 + 1, 13, 3, hair);
+    px(cx - 9, y0 + 2, 3, 23, hair); px(cx + 7, y0 + 2, 3, 23, hair);
+    px(cx - 3, y0 + 3, 3, 1, hair); px(cx + 1, y0 + 3, 3, 1, hair);
+    px(cx + 5, y0 + 1, 2, 2, '#ff8aa5');              // little hairpin
   }
+  // big soft eyes with a sparkle
   const ex = Math.round(o.eyeDx || 0), ey = Math.round(o.eyeDy || 0);
-  px(cx - 4 + ex, 103 + ey, 2, 2, '#1c1c28');
-  px(cx + 3 + ex, 103 + ey, 2, 2, '#1c1c28');
-  if (o.blush) { px(cx - 5, 106, 3, 1, rgba(PAL.cheek, clamp(o.blush, 0, 1))); px(cx + 3, 106, 3, 1, rgba(PAL.cheek, clamp(o.blush, 0, 1))); }
-  if (o.smile) { px(cx - 1, 108, 3, 1, '#b06a4a'); px(cx - 2, 107, 1, 1, '#b06a4a'); px(cx + 2, 107, 1, 1, '#b06a4a'); }
-  else px(cx - 1, 108, 2, 1, '#b06a4a');
+  px(cx - 4 + ex, y0 + 6 + ey, 2, 3, '#1c1c28');
+  px(cx + 3 + ex, y0 + 6 + ey, 2, 3, '#1c1c28');
+  px(cx - 4 + ex, y0 + 6 + ey, 1, 1, '#ffffff');
+  px(cx + 3 + ex, y0 + 6 + ey, 1, 1, '#ffffff');
+  if (!boy) {                                          // her round glasses
+    px(cx - 5, y0 + 5, 5, 1, PAL.glass); px(cx - 5, y0 + 9, 5, 1, PAL.glass);
+    px(cx - 5, y0 + 6, 1, 3, PAL.glass); px(cx - 1, y0 + 6, 1, 3, PAL.glass);
+    px(cx + 2, y0 + 5, 5, 1, PAL.glass); px(cx + 2, y0 + 9, 5, 1, PAL.glass);
+    px(cx + 2, y0 + 6, 1, 3, PAL.glass); px(cx + 6, y0 + 6, 1, 3, PAL.glass);
+    px(cx, y0 + 7, 2, 1, PAL.glass);                  // bridge
+  }
+  // ever-present blush + a soft smile
+  const bl = 0.35 + (o.blush || 0) * 0.65;
+  px(cx - 6, y0 + 10, 3, 2, rgba(PAL.cheek, bl * 0.8));
+  px(cx + 4, y0 + 10, 3, 2, rgba(PAL.cheek, bl * 0.8));
+  if (o.smile) { px(cx - 1, y0 + 12, 3, 1, '#c07a5a'); px(cx - 2, y0 + 11, 1, 1, '#c07a5a'); px(cx + 2, y0 + 11, 1, 1, '#c07a5a'); }
+  else px(cx - 1, y0 + 12, 2, 1, '#c07a5a');
 }
 function dimFront(cx, t) {
-  px(cx - 9, 118, 18, 34, '#221831');
-  px(cx - 5, 98 + Math.round(Math.sin(t * 0.8) * 0.6), 12, 12, '#2a1f3a');
+  const hy = 100 + Math.round(Math.sin(t * 0.8) * 0.8);
+  px(cx - 9, 120, 18, 32, '#3a2a44');
+  px(cx - 5, hy, 12, 12, '#4a3852');
+  px(cx - 5, hy, 12, 4, '#2e2038');
 }
-function armTo(cx, side, hx, hy, sleeve) {
+function armTo(cx, side, hx, hy, sleeve, sy) {
+  const s0 = sy === undefined ? 120 : sy;
   const sx = cx + (side > 0 ? 6 : -10);
-  px(sx, 120, 4, Math.max(2, hy - 122), sleeve);
+  px(sx, s0, 4, Math.max(2, hy - s0 - 2), sleeve);
   const x0 = Math.min(sx + 2, hx), x1 = Math.max(sx + 2, hx);
   px(x0, hy - 3, x1 - x0 + 2, 4, sleeve);
 }
@@ -609,7 +638,7 @@ SCENES.push({
       if (t >= 27 && t < 31) { rx = lerp(192, 160, seg(t, 27, 31)); ry = lerp(82, 152, seg(t, 27, 31)); rs = lerp(1, 0.6, seg(t, 27, 31)); }
       else if (t >= 31 && t < 34.5) { rx = lerp(160, 216, seg(t, 31.2, 34.2)); ry = 152; rs = 0.6; }
       else if (t >= 34.5) { rx = 216; ry = 154; rs = 0.6; }
-      if (t >= 41.5) { rx = lerp(216, 229, seg(t, 41.5, 42.2)); ry = 152; rs = 0.6; }   // into her arms
+      if (t >= 41.5) { rx = lerp(216, 228, seg(t, 41.5, 42.2)); ry = lerp(152, 157, seg(t, 41.5, 42.2)); rs = 0.6; }   // into her arms
       drawBouquet(rx, ry, rs, t);
     }
 
@@ -692,7 +721,7 @@ function hugShot(t) {
   }
   const hu = (t * 0.35) % 1;
   heartSpr(150 + R(Math.floor(t * 0.35)) * 90, 150 - hu * 90, 1.5, 0.4 * (1 - hu));
-  drawBouquet(207, 154, 0.5, t);                 // her blue bouquet, held close
+  drawBouquet(206, 156, 0.5, t);                 // her blue bouquet, held close
 }
 
 /* ============================================================

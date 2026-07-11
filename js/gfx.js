@@ -183,8 +183,9 @@ function flyHeart(p, fx, fy, mx, my, tx, ty) {
    ============================================================ */
 const PAL = {
   skin: '#f2bd92', skinG: '#f7cda6', cheek: '#ff8798',
-  bHair: '#2e3050', bShirt: '#e9edf4', bShirtD: '#c7d0de', bPants: '#41537a', bShoe: '#262840',
-  gHair: '#8a4f33', gHairD: '#6f3d27', gDress: '#e0607e', gDressD: '#c14a66', gShoe: '#93374f'
+  bHair: '#2e3050', bHairL: '#565a8c', bShirt: '#e9edf4', bShirtD: '#c7d0de', bPants: '#41537a', bShoe: '#262840',
+  gHair: '#24242e', gHairD: '#15151c', gDress: '#2e3c60', gDressD: '#222c48', gShoe: '#2c2c38',
+  glass: '#3e4250', glassIn: '#cfe4ea'
 };
 
 function person(x, y, o) {
@@ -218,10 +219,11 @@ function person(x, y, o) {
     const b = base + hv, dx = hd;
     r(-3 + dx, b + 7, 7, 7, skin);                       // face block
     if (boy) {
-      r(-3 + dx, b + 7, 7, 2, hair);                     // top
-      r(-4 + dx, b + 7, 2, 5, hair);                     // back of head
-      r(2 + dx, b + 6, 2, 1, hair);                      // front fringe
-      r(-2 + dx, b + 7, 4, 1, hairD);
+      r(-3 + dx, b + 8, 7, 3, hair);                     // swept-up top
+      r(-4 + dx, b + 7, 2, 6, hair);                     // back of head
+      r(1 + dx, b + 8, 3, 2, hair);                      // fringe sweeping forward
+      r(-1 + dx, b + 8, 3, 1, sil ? sil : col(PAL.bHairL)); // shine
+      r(-2 + dx, b + 6, 3, 1, hairD);
     } else {
       r(-3 + dx, b + 7, 7, 2, hair);                     // top
       r(-5 + dx, b + 7, 2, 11, hair);                    // long hair behind
@@ -229,8 +231,16 @@ function person(x, y, o) {
       r(2 + dx, b + 6, 2, 3, hair);                      // side strand front
       r(-1 + dx, b + 7, 3, 1, hairD);                    // bang shade
     }
+    if (!boy && !sil) {                                  // her glasses
+      r(0 + dx, b + 5, 4, 1, col(PAL.glass));
+      r(0 + dx, b + 3, 4, 1, col(PAL.glass));
+      r(0 + dx, b + 4, 1, 1, col(PAL.glass)); r(3 + dx, b + 4, 1, 1, col(PAL.glass));
+      r(-2 + dx, b + 5, 2, 1, col(PAL.glass));           // temple arm
+      r(1 + dx, b + 4, 2, 1, col(PAL.glassIn));
+    }
     r(1 + dx, b + 4, 1, 1, eyeC);                        // eye (facing side)
-    if (!sil && o.blush) r(2 + dx, b + 3, 2, 1, rgba(PAL.cheek, clamp(o.blush, 0, 1)));
+    if (!sil && boy) r(2 + dx, b + 2, 2, 1, col('#c07a5a'));   // his easy smile
+    if (!sil && o.blush) r(2 + dx, boy ? b + 3 : b + 2, 2, 1, rgba(PAL.cheek, clamp(o.blush, 0, 1)));
     if (!sil && o.rim) { r(3 + dx, b + 7, 1, 7, o.rim); }
     return b;
   }
@@ -250,19 +260,25 @@ function person(x, y, o) {
       r(bdx, 8, 2, 6, legC); r(fdx + 1, 8, 2, 6, legC);
       r(bdx - 1, 2, 3, 2, shoe); r(fdx + 1, 2, 3, 2, shoe);
       r(-3, 17, 6, 9, top); r(-3, 17, 1, 9, topD);
-    } else {
-      r(bdx, 8, 2, 6, legC); r(fdx + 1, 8, 2, 6, legC);
+      r(-1, 17, 2, 1, topD);                             // collar
+      // arm
+      if (armMode === 'up')        { r(2, 21, 2, 6, topD); r(2, 23, 2, 2, skin); }
+      else if (armMode === 'hold') { r(1, 13, 6, 2, topD); r(6, 13, 2, 2, skin); }
+      else if (armMode === 'face') { r(2, 17, 2, 4, topD); r(2, 18, 2, 2, skin); }
+      else                         { r(1, 16, 2, 7, topD); r(1, 10, 2, 2, skin); }
+      head(18);
+    } else {                                             // a head shorter than him
+      r(bdx, 6, 2, 4, legC); r(fdx + 1, 6, 2, 4, legC);
       r(bdx - 1, 2, 3, 2, shoe); r(fdx + 1, 2, 3, 2, shoe);
-      r(-3, 17, 6, 6, top);                              // bodice
-      r(-4, 12, 8, 4, top);                              // skirt flare
-      r(-4, 12, 1, 4, topD); r(-3, 17, 1, 6, topD);
+      r(-3, 13, 6, 4, top);                              // navy top
+      r(-4, 9, 8, 4, top);                               // skirt flare
+      r(-4, 9, 1, 4, topD); r(-3, 13, 1, 4, topD);
+      if (armMode === 'up')        { r(2, 17, 2, 5, topD); r(2, 19, 2, 2, skin); }
+      else if (armMode === 'hold') { r(1, 10, 5, 2, topD); r(5, 10, 2, 2, skin); }
+      else if (armMode === 'face') { r(2, 13, 2, 3, topD); r(2, 14, 2, 2, skin); }
+      else                         { r(1, 12, 2, 5, topD); r(1, 8, 2, 2, skin); }
+      head(14);
     }
-    // arm
-    if (armMode === 'up')        { r(2, 21, 2, 6, topD); r(2, 23, 2, 2, skin); }
-    else if (armMode === 'hold') { r(1, 13, 6, 2, topD); r(6, 13, 2, 2, skin); }
-    else if (armMode === 'face') { r(2, 17, 2, 4, topD); r(2, 18, 2, 2, skin); }
-    else                         { r(1, 16, 2, 7, topD); r(1, 10, 2, 2, skin); }
-    head(18);
   }
 
   else if (pose === 'sit' || pose === 'ride') {
@@ -270,20 +286,29 @@ function person(x, y, o) {
     const foot = o.footH === undefined ? 0 : o.footH;
     // thigh forward + shin down
     r(0, s + 1, 6, 2, legC);
-    r(4, s - 1, 2, s - 1 - foot, legC);
+    r(4, s - 1, 2, Math.max(2, s - 1 - foot), legC);
     r(4, foot + 2, 3, 2, shoe);
-    if (!boy) { r(-2, s + 3, 8, 3, top); r(-2, s + 3, 1, 3, topD); }   // skirt over lap
     const lean = pose === 'ride' ? 1 : 0;
-    r(-3 + lean, s + 10, 6, 9 - (boy ? 0 : 3), top);
-    r(-3 + lean, s + 10, 1, 9 - (boy ? 0 : 3), topD);
-    if (!boy) r(-3 + lean, s + 10, 6, 6, top);
-    // arm
-    if (armMode === 'up')        { r(2 + lean, s + 14, 2, 6, topD); r(2 + lean, s + 16, 2, 2, skin); }
-    else if (armMode === 'hold') { r(1 + lean, s + 7, 6, 2, topD); r(6 + lean, s + 7, 2, 2, skin); }
-    else if (armMode === 'face') { r(2 + lean, s + 10, 2, 4, topD); r(2 + lean, s + 11, 2, 2, skin); }
-    else if (armMode === 'hugF') { r(1 + lean, s + 8, 7, 2, topD); r(7 + lean, s + 8, 2, 2, skin); }
-    else                         { r(1 + lean, s + 6, 4, 2, topD); r(4 + lean, s + 6, 2, 2, skin); }
-    head(s + 11 + lean * 0);
+    if (boy) {
+      r(-3 + lean, s + 10, 6, 9, top);
+      r(-3 + lean, s + 10, 1, 9, topD);
+      if (armMode === 'up')        { r(2 + lean, s + 14, 2, 6, topD); r(2 + lean, s + 16, 2, 2, skin); }
+      else if (armMode === 'hold') { r(1 + lean, s + 7, 6, 2, topD); r(6 + lean, s + 7, 2, 2, skin); }
+      else if (armMode === 'face') { r(2 + lean, s + 10, 2, 4, topD); r(2 + lean, s + 11, 2, 2, skin); }
+      else if (armMode === 'hugF') { r(1 + lean, s + 8, 7, 2, topD); r(7 + lean, s + 8, 2, 2, skin); }
+      else                         { r(1 + lean, s + 6, 4, 2, topD); r(4 + lean, s + 6, 2, 2, skin); }
+      head(s + 11);
+    } else {
+      r(-2, s + 3, 8, 3, top); r(-2, s + 3, 1, 3, topD); // skirt over lap
+      r(-3 + lean, s + 7, 6, 6, top);
+      r(-3 + lean, s + 7, 1, 6, topD);
+      if (armMode === 'up')        { r(2 + lean, s + 11, 2, 5, topD); r(2 + lean, s + 13, 2, 2, skin); }
+      else if (armMode === 'hold') { r(1 + lean, s + 6, 5, 2, topD); r(5 + lean, s + 6, 2, 2, skin); }
+      else if (armMode === 'face') { r(2 + lean, s + 8, 2, 3, topD); r(2 + lean, s + 9, 2, 2, skin); }
+      else if (armMode === 'hugF') { r(1 + lean, s + 7, 6, 2, topD); r(6 + lean, s + 7, 2, 2, skin); }
+      else                         { r(1 + lean, s + 5, 3, 2, topD); r(3 + lean, s + 5, 2, 2, skin); }
+      head(s + 8);
+    }
   }
 
   else if (pose === 'kneel') {
@@ -326,20 +351,21 @@ function hugPair(x, y, o) {
   // boy body
   px(x - 8, y - 14, 3, 12, col(PAL.bPants)); px(x - 9, y - 2, 4, 2, col(PAL.bShoe));
   px(x - 9, y - 23, 7, 9, col(PAL.bShirt));
-  // girl body leaning in
-  px(x + 3, y - 13, 3, 11, col(PAL.skinG)); px(x + 3, y - 2, 4, 2, col(PAL.gShoe));
-  px(x + 1, y - 22, 7, 9, col(PAL.gDress));
-  px(x + 0, y - 15, 9, 3, col(PAL.gDress));
-  // heads together
+  // girl body leaning in — a head shorter than him
+  px(x + 3, y - 11, 3, 9, col(PAL.skinG)); px(x + 3, y - 2, 4, 2, col(PAL.gShoe));
+  px(x + 1, y - 19, 7, 8, col(PAL.gDress));
+  px(x + 0, y - 13, 9, 3, col(PAL.gDress));
+  // heads together, hers against his shoulder
   px(x - 8, y - 30, 7, 7, col(PAL.skin));
   px(x - 8, y - 30, 7, 2, col(PAL.bHair)); px(x - 9, y - 30, 2, 5, col(PAL.bHair));
-  px(x + 1, y - 29, 7, 7, col(PAL.skinG));
-  px(x + 1, y - 29, 7, 2, col(PAL.gHair)); px(x + 7, y - 29, 2, 10, col(PAL.gHair));
+  px(x + 1, y - 26, 7, 7, col(PAL.skinG));
+  px(x + 1, y - 26, 7, 2, col(PAL.gHair)); px(x + 7, y - 26, 2, 10, col(PAL.gHair));
+  px(x + 1, y - 22, 2, 1, col(PAL.glass));               // a glint of her glasses
   // arms wrapped across
-  px(x - 7, y - 20, 12, 2, col(PAL.gDressD));   // girl's arm across boy
-  px(x - 4, y - 17, 11, 2, col(PAL.bShirtD));   // boy's arm across girl
-  px(x + 6, y - 21, 2, 2, col(PAL.skinG));
-  px(x - 6, y - 16, 2, 2, col(PAL.skin));
+  px(x - 7, y - 18, 12, 2, col(PAL.gDressD));   // girl's arm across boy
+  px(x - 4, y - 15, 11, 2, col(PAL.bShirtD));   // boy's arm across girl
+  px(x + 6, y - 19, 2, 2, col(PAL.skinG));
+  px(x - 6, y - 14, 2, 2, col(PAL.skin));
 }
 
 /* scooter, side view facing right; x = center, y = ground */

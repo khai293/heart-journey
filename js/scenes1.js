@@ -99,19 +99,19 @@ function coupleHeads(bx, gx, bottomY, o) {
   o = o || {};
   const lum = Math.min(1, (o.lum || 0) + 0.22);          // the leads catch more light
   glow((bx + gx) / 2, bottomY - 8, 22, '#ffcf9a', 0.08 + lum * 0.10);
-  const bh = mix('#23253d', '#4d5378', lum), gh = mix('#5e3722', '#8a5136', lum);
-  const bs = mix('#3d4152', '#767e94', lum), gd = mix('#8f3d52', '#c04f68', lum);
+  const bh = mix('#23253d', '#4d5378', lum), gh = mix('#1a1a22', '#36363e', lum);
+  const bs = mix('#3d4152', '#767e94', lum), gd = mix('#242e48', '#3e4c72', lum);
   // boy
   px(bx - 5, bottomY - 3, 10, 3, bs);                    // shoulders
   px(bx - 3, bottomY - 10 - (o.leanB || 0), 7, 8, bh);   // head
-  // girl
+  // girl, a head shorter
   px(gx - 5, bottomY - 3, 10, 3, gd);
-  px(gx - 3, bottomY - 9 - (o.leanG || 0), 7, 8, gh);
-  px(gx - 4, bottomY - 7 - (o.leanG || 0), 2, 7, gh);    // long hair sides
-  px(gx + 2, bottomY - 7 - (o.leanG || 0), 2, 7, gh);
+  px(gx - 3, bottomY - 8 - (o.leanG || 0), 7, 7, gh);
+  px(gx - 4, bottomY - 6 - (o.leanG || 0), 2, 6, gh);    // long hair sides
+  px(gx + 2, bottomY - 6 - (o.leanG || 0), 2, 6, gh);
   if (lum > 0.05) {                                       // screen rim light
     px(bx - 3, bottomY - 10 - (o.leanB || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
-    px(gx - 3, bottomY - 9 - (o.leanG || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
+    px(gx - 3, bottomY - 8 - (o.leanG || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
   }
   if (o.hands) {                                          // clasped hands on the armrest
     const hx = (bx + gx) / 2;
@@ -690,7 +690,7 @@ function drawChatOffice(t) {
   deskSide(268, 334, GY, t, 1);
   chairSide(290, GY, 1);
   person(296, GY, { who: 'girl', pose: 'sit', f: 1, seat: 7, arm: pulse(t, 6, 6.4, 8, 8.6) > 0.3 ? 'face' : 'hold', sil: '#9a8a7e' });
-  px(305, GY - 25, 4, 5, '#f0f4f8');                               // her coffee
+  px(300, GY - 23, 4, 5, '#f0f4f8');                               // her coffee on the desk
   // the boss drifts past — look busy!
   const bossOn = t > 10 && t < 14;
   // our guy at his desk
@@ -705,24 +705,24 @@ function drawChatOffice(t) {
     headDy: happy * -1
   });
   // sweat drop while the boss is near
-  if (bossOn) px(178, GY - 27 + (t % 0.8) * 4, 2, 3, rgba('#8ad2f0', 0.85));
+  if (bossOn) px(178, GY - 24 + (t % 0.8) * 4, 2, 3, rgba('#8ad2f0', 0.85));
   deskSide(150, 236, GY, t, 2);
-  // his phone: on the desk buzzing, then in hand — hidden while the boss passes
+  // his phone: on the desk buzzing, then in his hand — hidden while the boss passes
   const buzz = pulse(t, 4.5, 4.6, 5, 5.4) * Math.sin(t * 45) * 1.2;
-  if (t < 5.5) phoneSpr(196 + buzz, GY - 41, t > 4.4);
-  else if (!bossOn) phoneSpr(182, GY - 20, true);
+  if (t < 5.5) phoneSpr(196 + buzz, GY - 25, t > 4.4);
+  else if (!bossOn) phoneSpr(180, GY - 19, true);
   if (bossOn) {
     const bx = lerp(360, 30, seg(t, 10, 14));
-    person(bx, GY + 14, { who: 'boy', pose: 'walk', f: -1, frame: Math.floor(t * 6), sil: '#3a3440' });
-    px(bx - 2, GY + 14 - 21, 3, 8, '#2a242e');                     // the tie
+    person(bx, GY + 8, { who: 'boy', pose: 'walk', f: -1, frame: Math.floor(t * 6), sil: '#3a3440' });
+    px(bx - 2, GY + 8 - 21, 3, 8, '#2a242e');                      // the tie
   }
-  // messages
+  // messages float up from the phone
   const evs = [[4.6, false, 'heart'], [8.5, true, 'heart'], [15, false, 'heart'], [17, true, 'note']];
   for (const [t0, left, kind] of evs) {
     const u = (t - t0) / 2.2;
-    if (u > 0 && u < 1 && !(bossOn && t0 < 10)) chatBubble(left ? 168 : 196, GY - 52 - u * 40, left, kind, (1 - u) * Math.min(1, u * 9));
+    if (u > 0 && u < 1 && !(bossOn && t0 < 10)) chatBubble(left ? 172 : 194, GY - 42 - u * 36, left, kind, (1 - u) * Math.min(1, u * 9));
   }
-  if (t > 13.2 && t < 14.8) chatBubble(196, GY - 54, false, 'dots', 0.85);
+  if (t > 13.2 && t < 14.8) chatBubble(194, GY - 44, false, 'dots', 0.85);
   // happy notes at the end
   if (t > 18 && t < 21) {
     note(168 + (t - 18) * 4, GY - 52 - (t - 18) * 6, '#ffd98a', pulse(t, 18, 18.4, 20, 21));
@@ -731,14 +731,15 @@ function drawChatOffice(t) {
 }
 function deskSide(x0, x1, gy, t, kind) {
   const w = x1 - x0;
-  px(x0, gy - 36, w, 4, '#8a94a8'); px(x0, gy - 36, w, 1, '#aab4c0');
-  px(x0 + 4, gy - 32, 4, 32, '#5e6878'); px(x1 - 8, gy - 32, 4, 32, '#5e6878');
-  // monitor in profile + keyboard
-  px(x1 - 24, gy - 56, 5, 18, '#2c3040');
-  px(x1 - 23, gy - 54, 2, 14, ['#bfe4f0', '#d8ecc0', '#bfe4f0'][kind]);
-  glow(x1 - 22, gy - 47, 10, '#bfe4f0', 0.2);
-  px(x1 - 30, gy - 55, 8, 2, '#3a4050'); px(x1 - 27, gy - 40, 3, 4, '#3a4050');
-  px(x0 + 18, gy - 39, 16, 3, '#3a4050');
+  px(x0, gy - 18, w, 3, '#8a94a8'); px(x0, gy - 18, w, 1, '#aab4c0');
+  px(x0 + 3, gy - 15, 3, 15, '#5e6878'); px(x1 - 6, gy - 15, 3, 15, '#5e6878');
+  // monitor standing on the desk, screen toward the sitter
+  px(x1 - 20, gy - 34, 4, 13, '#2c3040');
+  px(x1 - 20, gy - 32, 1, 10, ['#bfe4f0', '#d8ecc0', '#bfe4f0'][kind]);
+  glow(x1 - 19, gy - 28, 8, '#bfe4f0', 0.18);
+  px(x1 - 19, gy - 21, 2, 3, '#3a4050'); px(x1 - 21, gy - 19, 6, 1, '#3a4050');
+  // keyboard on the desk
+  px(x0 + 14, gy - 20, 13, 2, '#3a4050');
 }
 /* ============================================================
    CH3 — sunrise over the sea                           (44 s)
@@ -812,7 +813,7 @@ SCENES.push({
     person(295, 150, { who: 'boy', pose: 'sit', f: -1, seat: 7, shade: shade + 0.03, rim, arm: 'lap' });
     // breeze in her hair
     for (let i = 0; i < 3; i++)
-      px(288 + i * 2 + Math.sin(t * 3 + i) * 1.5, 132 + i, 2, 1, rgba('#8a5136', 0.7));
+      px(288 + i * 2 + Math.sin(t * 3 + i) * 1.5, 135 + i, 2, 1, rgba('#24242e', 0.8));
     flyHeart(lin(t, 30, 33.6), 286, 126, 240, 26, hudX(2), HUD_Y);
     dim((1 - ph) * 0.22);
   }
