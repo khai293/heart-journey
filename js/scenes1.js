@@ -104,14 +104,14 @@ function coupleHeads(bx, gx, bottomY, o) {
   // boy
   px(bx - 5, bottomY - 3, 10, 3, bs);                    // shoulders
   px(bx - 3, bottomY - 10 - (o.leanB || 0), 7, 8, bh);   // head
-  // girl, a head shorter
+  // girl, petite beside him
   px(gx - 5, bottomY - 3, 10, 3, gd);
-  px(gx - 3, bottomY - 8 - (o.leanG || 0), 7, 7, gh);
-  px(gx - 4, bottomY - 6 - (o.leanG || 0), 2, 6, gh);    // long hair sides
-  px(gx + 2, bottomY - 6 - (o.leanG || 0), 2, 6, gh);
+  px(gx - 3, bottomY - 6 - (o.leanG || 0), 7, 6, gh);
+  px(gx - 4, bottomY - 5 - (o.leanG || 0), 2, 5, gh);    // long hair sides
+  px(gx + 2, bottomY - 5 - (o.leanG || 0), 2, 5, gh);
   if (lum > 0.05) {                                       // screen rim light
     px(bx - 3, bottomY - 10 - (o.leanB || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
-    px(gx - 3, bottomY - 8 - (o.leanG || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
+    px(gx - 3, bottomY - 6 - (o.leanG || 0), 7, 1, rgba('#ffe9c0', lum * 0.5));
   }
   if (o.hands) {                                          // clasped hands on the armrest
     const hx = (bx + gx) / 2;
@@ -361,11 +361,11 @@ SCENES.push({
     [42, { bpm: 66, root: 5, prog: [3, 4], pstyle: 'min', layers: { piano: 0.45, pad: 0.4 }, amb: {} }],
     [49, { bpm: 70, root: 5, prog: [0, 5, 3, 4], pstyle: 'chords', layers: { piano: 0.7, pad: 0.5, str: 0.55, mel: 0.7 }, amb: {} }]
   ],
-  sfx: [[14, 'kiss'], [26.2, 'chime'], [42.8, 'chime'], [46.5, 'kiss'], [51.2, 'heart']],
+  sfx: [[14, 'kiss'], [26.2, 'chime'], [41.6, 'chime'], [44.9, 'kiss'], [51.2, 'heart']],
   draw(t) {
     if (t < 30) drawLibrary(t);
     else drawSunsetStreet(t);
-    flyHeart(lin(t, 51, 54.5), 246, 138, 300, 26, hudX(1), HUD_Y);
+    flyHeart(lin(t, 51, 54.5), 234, 132, 292, 26, hudX(1), HUD_Y);
   }
 });
 
@@ -514,52 +514,82 @@ function drawSunsetStreet(t) {
   px(0, 150, W, 2, '#9ab884');
   px(0, GY, W, H - GY, '#8a8ea8');                                 // pavement
   px(0, GY, W, 2, '#a8acc0');
-  // lamppost (off — it's morning)
-  px(288, 108, 3, GY - 108, '#3c4256');
-  px(283, 104, 13, 5, '#3c4256');
-  px(286, 106, 7, 3, '#5e6478');
   petals(t, 7, { x0: 0, x1: W, y0: 60, y1: 168 }, 0.45);
-  // the morning crowd flows past, the two of them stay bright
-  for (let i = 0; i < 5; i++) crowdWalker(i + 10, t, GY - 1 + (i % 2), true);
+  // ---- the parking lot ----
+  // painted bay lines
+  for (let k = 0; k < 5; k++) px(248 + k * 30, GY + 2, 2, 12, rgba('#e8e8f0', 0.7));
+  // parking sign: a little bicycle glyph
+  px(210, 118, 3, GY - 118, '#3c4256');
+  px(202, 106, 19, 16, '#2e5a9e'); px(204, 108, 15, 12, '#4a7ac0');
+  disc(208, 116, 2, '#f0f4f8'); disc(215, 116, 2, '#f0f4f8'); px(209, 112, 5, 1, '#f0f4f8'); px(211, 113, 1, 3, '#f0f4f8');
+  // attendant's booth, someone half-asleep inside
+  px(346, 118, 34, GY - 118, '#8a7a5e'); px(344, 114, 38, 6, '#6a5a42');
+  px(352, 128, 22, 16, '#2c3040');
+  px(358, 133, 8, 8, '#8a8ca0'); px(358, 133, 8, 3, '#3a3440');
+  px(346, 152, 34, 2, '#6a5a42');
+  // other bikes sleeping in their bays
+  scooter(282, GY, { body: '#6a7a9e' });
+  scooter(312, GY, { body: '#5e8a7a' });
+  scooter(340, GY, { body: '#8a8ca0' });
+  // a couple of passers-by
+  for (let i = 0; i < 3; i++) crowdWalker(i + 10, t, GY - 1 + (i % 2), true);
 
-  // ------- couple choreography -------
+  // ------- couple choreography: goodbye at his scooter -------
   const wf = Math.floor(t * 7);
-  const shade = 0;
-  if (t < 38.5) {                                                  // walking together
-    const cx = lerp(46, 218, seg(t, 30.2, 38));
-    const walking = t < 38;
-    person(cx - 12, GY, { who: 'boy', pose: walking ? 'walk' : 'stand', f: 1, frame: wf, shade });
-    person(cx + 6, GY, { who: 'girl', pose: walking ? 'walk' : 'stand', f: 1, frame: wf + 2, shade });
+  const rideOff = seg(t, 51.5, 56);
+  const bikeX = 254 + Math.pow(rideOff, 1.4) * 180;
+  // his red scooter, parked — then leaving
+  if (t < 48.5) scooter(254, GY, {});
+  else scooter(bikeX, GY - Math.sin(t * 9) * 0.5 * rideOff, { light: false });
+  if (t < 37.6) {                                                  // walking in together
+    const cx = lerp(46, 226, seg(t, 30.2, 37.2));
+    const walking = t < 37.2;
+    person(cx + 6, GY, { who: 'girl', pose: walking ? 'walk' : 'stand', f: 1, frame: wf + 2 });
+    person(cx - 8, GY, { who: 'boy', pose: walking ? 'walk' : 'stand', f: 1, frame: wf });
   } else {
-    // girl starts to leave, turns back, kiss
-    let gx = 224, gf = 1, gWalk = false;
-    if (t >= 40 && t < 42.6) { gx = lerp(224, 252, seg(t, 40, 42.5)); gWalk = true; }
-    else if (t >= 42.6) { gx = 252; gf = t > 43.4 ? -1 : 1; }
-    let bx = 206, bWalk = false;
-    if (t >= 44 && t < 46.2) { bx = lerp(206, 240, seg(t, 44, 46)); bWalk = true; }
-    else if (t >= 46.2) bx = 240;
-    const kiss = pulse(t, 46.3, 46.8, 47.6, 48.2);
-    const startle = pulse(t, 47.8, 48, 48.8, 49.4);
-    person(bx, GY, {
-      who: 'boy', pose: bWalk ? 'walk' : 'stand', f: 1, frame: wf, shade,
-      headDx: 2.5 * kiss, headDy: -0.5 * kiss, blush: seg(t, 46, 47) * 0.7,
-      bob: pulse(t, 42.7, 42.85, 43.1, 43.3) * 2
-    });
-    person(gx, GY, {
-      who: 'girl', pose: gWalk ? 'walk' : 'stand', f: gf, frame: wf + 2, shade,
-      blush: seg(t, 46.4, 47.6), bob: startle * 2,
+    // he goes to his bike, hand on the bars... then comes back for one more thing
+    let bx = 218, bf = 1, bWalk = false, bArm = 'down';
+    if (t < 40) { bx = lerp(218, 246, seg(t, 38, 39.8)); bWalk = t < 39.8; }
+    else if (t < 42.2) { bx = 246; bArm = 'hold'; bf = t > 41.6 ? -1 : 1; }         // about to mount — hesitates
+    else if (t < 44) { bx = lerp(246, 238, seg(t, 42.2, 43.8)); bWalk = true; bf = -1; }
+    else if (t < 47) { bx = 238; bf = -1; }
+    else if (t < 48.5) { bx = lerp(238, 250, seg(t, 47, 48.4)); bWalk = true; bf = 1; }
+    const kiss = pulse(t, 44.3, 44.8, 45.6, 46.2);
+    const startle = pulse(t, 45.8, 46, 46.8, 47.4);
+    // she sees him off
+    person(232, GY, {
+      who: 'girl', pose: 'stand', f: 1, frame: wf + 2,
+      arm: (t > 49 && t < 55) ? 'up' : 'down',
+      blush: seg(t, 44.5, 45.8), bob: startle * 2 + pulse(t, 49.5, 49.7, 50.2, 50.6),
       headDy: startle * -1
     });
-    if (kiss > 0.2) {                                              // little pink puff
-      px(245, GY - 22, 2, 2, rgba('#ff9dab', kiss));
-      px(248, GY - 25, 1, 1, rgba('#ffb3c4', kiss));
-      px(243, GY - 26, 1, 1, rgba('#ffb3c4', kiss * 0.8));
+    if (t < 48.5) {
+      person(bx, GY, {
+        who: 'boy', pose: bWalk ? 'walk' : 'stand', f: bf, frame: wf, arm: bArm,
+        headDx: 2 * kiss, headDy: -3 * kiss, blush: seg(t, 44, 45) * 0.7
+      });
+    } else {
+      person(bikeX - 6, GY - 1, {
+        who: 'boy', pose: 'ride', f: 1, seat: 11, footH: 7,
+        arm: (t > 49.3 && t < 50.6) ? 'up' : 'hold', blush: 0.5
+      });
     }
-    if (t > 42.7 && t < 43.6) sparkle(210, GY - 34, 2, '#ffe9c8', pulse(t, 42.7, 42.9, 43.3, 43.6));
-    if (startle > 0.3) sparkle(252, GY - 34, 2.5, '#ff9dab', startle);
+    if (kiss > 0.2) {                                              // little pink puff at her cheek
+      px(235, GY - 15, 2, 2, rgba('#ff9dab', kiss));
+      px(238, GY - 18, 1, 1, rgba('#ffb3c4', kiss));
+      px(233, GY - 19, 1, 1, rgba('#ffb3c4', kiss * 0.8));
+    }
+    if (t > 41.6 && t < 42.5) sparkle(250, GY - 32, 2, '#ffe9c8', pulse(t, 41.6, 41.8, 42.2, 42.5));
+    if (startle > 0.3) sparkle(230, GY - 26, 2.5, '#ff9dab', startle);
+    if (rideOff > 0 && rideOff < 1) {                              // puffs of dust behind the bike
+      for (let i = 0; i < 3; i++) {
+        const du = (t * 2 + i * 0.4) % 1;
+        px(bikeX - 20 - du * 10, GY - 2 - du * 3, 2, 2, rgba('#c8c2d8', (1 - du) * 0.5 * rideOff));
+      }
+    }
     if (t > 49 && t < 51.5) {
-      note(236, GY - 42 - (t - 49) * 4, '#ffd98a', pulse(t, 49, 49.4, 50.6, 51.5));
-      note(256, GY - 44 - (t - 49) * 4, '#ff9dab', pulse(t, 49.3, 49.7, 50.8, 51.5));
+      note(226, GY - 30 - (t - 49) * 4, '#ff9dab', pulse(t, 49, 49.4, 50.6, 51.5));
+      note(244, GY - 34 - (t - 49) * 4, '#ffd98a', pulse(t, 49.3, 49.7, 50.8, 51.5));
     }
   }
 }

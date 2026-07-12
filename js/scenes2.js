@@ -117,15 +117,16 @@ SCENES.push({
     [0, { bpm: 60, root: 4, prog: [0, 5, 3, 4], pstyle: 'min', layers: { piano: 0.5, pad: 0.4 }, amb: { hum: 0.5 } }],
     [27, { bpm: 60, root: 4, prog: [0, 5, 3, 4], pstyle: 'min', layers: { piano: 0.55, pad: 0.5, mel: 0.5, str: 0.3 }, amb: { hum: 0.4 } }]
   ],
-  sfx: [[22.6, 'kiss'], [27.9, 'chime'], [36.1, 'heart']],
+  sfx: [[15.1, 'kiss'], [17, 'chime'], [36.1, 'heart']],
   draw(t) {
-    const closeup = t >= 10 && t < 33;
+    const closeup = t >= 10 && t < 27;
     if (!closeup) {
       cinemaRoom(t, {
         screen: 0.5, beam: 0.75, lamps: 0,
         extras: true, exclude: { row: 2, x0: 172, x1: 218 },
         content: S => movieOnScreen(S, t),
-        midDraw: () => coupleHeads(186, 204, 186, { lum: 0.42, hands: t > 33.5 })
+        midDraw: () => coupleHeads(186, 204 - 3 * seg(t, 30, 32), 186,
+          { lum: 0.42, hands: t > 27, leanG: -2 * seg(t, 30, 32) })
       });
     } else {
       drawHandsCloseup(t);
@@ -135,41 +136,73 @@ SCENES.push({
 });
 
 function movieOnScreen(S, t) {
-  // the cartoon they're watching: two round friends hop close, a heart pops
+  // the cartoon: little yellow fellows and a runaway banana
   px(S.x, S.y, S.w, S.h, '#7ac4ea');
-  px(S.x, S.y + S.h - 34, S.w, 34, '#7ec860');
-  px(S.x, S.y + S.h - 34, S.w, 2, '#96da74');
+  px(S.x, S.y + S.h - 30, S.w, 30, '#8ad2a0');
+  px(S.x, S.y + S.h - 30, S.w, 2, '#a2e4b4');
   disc(S.x + 24, S.y + 16, 7, '#ffe66e'); glow(S.x + 24, S.y + 16, 14, '#ffe66e', 0.4);
   const cl = S.x + ((t * 7) % (S.w + 40)) - 20;
   px(cl, S.y + 14, 24, 5, '#ffffff'); px(cl + 5, S.y + 10, 14, 4, '#ffffff');
-  px(S.x + 34, S.y + S.h - 30, 3, 6, rgba('#4a8a3a', 0.9));
-  px(S.x + 160, S.y + S.h - 28, 3, 5, rgba('#4a8a3a', 0.9));
-  const gy = S.y + S.h - 34;
-  const loop = t % 9;
-  const appr = Math.min(1, loop / 5);
-  const hop = Math.abs(Math.sin(t * 6)) * 5 * (appr < 1 ? 1 : 0.15);
-  const ax = S.x + 34 + appr * 52;
-  const bx = S.x + S.w - 34 - appr * 52;
-  // little orange cat
-  disc(ax, gy - 7 - hop, 7, '#f0a04a');
-  px(ax - 6, gy - 16 - hop, 3, 5, '#f0a04a'); px(ax + 3, gy - 16 - hop, 3, 5, '#f0a04a');
-  px(ax - 3, gy - 9 - hop, 2, 2, '#3a2a1c'); px(ax + 2, gy - 9 - hop, 2, 2, '#3a2a1c');
-  // little white bunny
-  disc(bx, gy - 7 - hop, 7, '#ffffff');
-  px(bx - 5, gy - 20 - hop, 3, 9, '#ffffff'); px(bx + 2, gy - 20 - hop, 3, 9, '#ffffff');
-  px(bx - 3, gy - 9 - hop, 2, 2, '#3a2a1c'); px(bx + 2, gy - 9 - hop, 2, 2, '#3a2a1c');
-  px(bx - 1, gy - 6 - hop, 2, 1, '#ff8aa5');
-  if (loop > 5.4) {
-    const hu = seg(loop, 5.4, 6.2);
-    heartSpr(S.x + S.w / 2, gy - 20 - (loop - 5.4) * 4, 1.6 * hu + 0.3, 0.3);
+  const gy = S.y + S.h - 30;
+  const loop = t % 8;
+  const chase = Math.min(1, loop / 4.6);
+  const caught = loop >= 4.6;
+  const mx = S.x + 30 + chase * 92;
+  // the banana, always one hop ahead — until it isn't
+  const bnx = caught ? mx - 2 : S.x + 56 + chase * 92;
+  const bny = caught ? gy - 29 - Math.abs(Math.sin(t * 8)) * 5 : gy - 5 - Math.abs(Math.sin(t * 7)) * 9;
+  const hopM = caught ? Math.abs(Math.sin(t * 8)) * 5 : 0;
+  minionSpr(mx, gy - hopM, t, { eyes: 2, run: !caught, armsUp: caught });
+  bananaSpr(bnx, bny);
+  // a little one-eyed friend giggling at the edge
+  minionSpr(S.x + S.w - 24, gy - Math.abs(Math.sin(t * 5 + 1)) * 3, t + 2, { eyes: 1, small: true, run: false });
+  if (caught) {
+    const hu = seg(loop, 4.8, 5.6);
+    heartSpr(mx + 1, gy - 36 - (loop - 4.8) * 3, 1.4 * hu + 0.3, 0.3);
   }
+}
+function minionSpr(x, y, t, o) {
+  const h = o.small ? 13 : 16, w = o.small ? 10 : 12;
+  const yb = '#f5d442', ybD = '#d8b430', den = '#3e5a9e';
+  // capsule body
+  px(x - w / 2 + 1, y - h, w - 2, h, yb);
+  px(x - w / 2, y - h + 2, w, h - 4, yb);
+  px(x + w / 2 - 2, y - h + 2, 2, h - 4, ybD);
+  // goggle strap + goggles
+  px(x - w / 2, y - h + 4, w, 1, '#2c2c34');
+  if (o.eyes === 2) {
+    px(x - 4, y - h + 2, 4, 4, '#c8ccd4'); px(x, y - h + 2, 4, 4, '#c8ccd4');
+    px(x - 3, y - h + 3, 2, 2, '#ffffff'); px(x + 1, y - h + 3, 2, 2, '#ffffff');
+    px(x - 3, y - h + 4, 1, 1, '#6a4a2c'); px(x + 1, y - h + 4, 1, 1, '#6a4a2c');
+  } else {
+    px(x - 2, y - h + 2, 5, 5, '#c8ccd4');
+    px(x - 1, y - h + 3, 3, 3, '#ffffff');
+    px(x, y - h + 4, 1, 1, '#6a4a2c');
+  }
+  px(x - 1, y - h + 8, 3, 1, '#7a4a2c');            // grin
+  // denim overalls
+  px(x - w / 2, y - 6, w, 6, den);
+  px(x - w / 2 + 1, y - 8, 1, 2, den); px(x + w / 2 - 2, y - 8, 1, 2, den);
+  px(x - 1, y - 5, 3, 2, mix(den, '#000000', 0.25));
+  // arms
+  if (o.armsUp) { px(x - w / 2 - 2, y - h - 2, 2, 5, '#2c2c34'); px(x + w / 2, y - h - 2, 2, 5, '#2c2c34'); }
+  else { px(x - w / 2 - 2, y - 8, 2, 4, '#2c2c34'); px(x + w / 2, y - 8, 2, 4, '#2c2c34'); }
+  // little feet
+  const step = o.run ? Math.sin(t * 12) * 1.5 : 0;
+  px(x - 3 + step, y, 3, 2, '#2c2c34'); px(x + 1 - step, y, 3, 2, '#2c2c34');
+}
+function bananaSpr(x, y) {
+  px(x, y, 6, 2, '#f4d848');
+  px(x + 1, y - 1, 5, 1, '#f4d848');
+  px(x - 1, y + 1, 2, 1, '#c8a83a');
+  px(x + 5, y - 1, 1, 1, '#8a6a2c');
 }
 
 function drawHandsCloseup(t) {
   // medium shot, facing them: two seats, two nervous people, one armrest
   vgrad(0, 0, W, H, [[0, '#0d0a18'], [1, '#080610']]);
   const idx = Math.floor(t / 2.8), u = ss((t % 2.8) / 2.8);
-  const cols = ['#5a86b0', '#6aa06a', '#b0965a', '#7ab0c8'];
+  const cols = ['#e8c84e', '#5a86b0', '#f5d442', '#7ab0c8'];
   const lc = mix(cols[Math.floor(R(idx) * 4)], cols[Math.floor(R(idx + 1) * 4)], u);
   const fl = 0.8 + 0.2 * Math.sin(t * 10.7) * Math.sin(t * 4.3);
 
@@ -186,35 +219,28 @@ function drawHandsCloseup(t) {
   // neighbours, lost in the film
   dimFront(96, t); dimFront(288, t + 3);
 
-  /* story beats on the middle armrest */
+  /* story beats: one glance, one breath — and he simply takes her hand */
   const skinB = mix(PAL.skin, '#c8814e', 0.35);
   const skinG2 = mix(PAL.skinG, '#ffffff', 0.18);
-  const move = seg(t, 26.4, 27.8);                 // her answer
-  const hx2 = lerp(210, 191, move);
-  const hy2 = lerp(130, 128, move) - 1.2 * pulse(t, 22.6, 22.75, 23.1, 23.4);
-  let bx = 168;
-  bx += 6 * seg(t, 12, 13.4);
-  bx += 6 * seg(t, 14.5, 15.6);
-  bx -= 3 * seg(t, 17, 17.8);                      // hesitates...
-  bx += 8 * seg(t, 19, 21.3);
-  bx += 3 * seg(t, 22.2, 22.6);                    // ...pinky says hello
-  if (t > 17 && t < 18.2) bx += Math.sin(t * 40) * 0.4;
-  const flip = seg(t, 24, 25.2);
-  const fold = seg(t, 28.2, 29);
-  const sq = pulse(t, 29.6, 29.85, 30.15, 30.55);
-  const stroke = Math.sin(seg(t, 30.9, 31.7) * Math.PI) * 1.5;
+  const grab = seg(t, 14.2, 15.2);
+  const startle = 1.5 * pulse(t, 15.2, 15.35, 15.9, 16.3);
+  const hx2 = 206, hy2 = 130 - startle;
+  let bx = 168 + 10 * seg(t, 12.4, 13.6);
+  bx = lerp(bx, hx2 - 9, grab);
+  const by = lerp(131, 128, grab) - Math.sin(grab * Math.PI) * 5;
+  const sq = pulse(t, 17.8, 18.05, 18.35, 18.75) + pulse(t, 20.6, 20.85, 21.15, 21.55);
+  const stroke = Math.sin(seg(t, 19, 19.8) * Math.PI) * 1.5;
 
-  // faces: stolen glances, then eyes that finally meet
-  const bGlance = pulse(t, 13, 13.4, 15.2, 15.8) + pulse(t, 19.5, 19.9, 21.2, 21.8);
-  const gGlance = pulse(t, 16, 16.4, 17.8, 18.4);
-  const meet = seg(t, 29.5, 30.2) * (1 - seg(t, 32, 32.8));
+  // faces: a quick glance, then eyes that meet and stay
+  const bGlance = pulse(t, 12, 12.4, 14, 14.6);
+  const meet = seg(t, 16.6, 17.4) * (1 - seg(t, 24.2, 25.4));
   frontPerson(160, {
-    who: 'boy', eyeDx: bGlance + meet, blush: 0.25 + 0.5 * seg(t, 12, 22),
-    smile: meet > 0.3 || t > 29
+    who: 'boy', eyeDx: bGlance + meet, blush: 0.3 + 0.5 * seg(t, 12, 15.5),
+    smile: t > 15
   });
   frontPerson(224, {
-    who: 'girl', eyeDx: -(gGlance + meet), eyeDy: pulse(t, 22.6, 23, 27.5, 28.5),
-    blush: 0.7 * seg(t, 22.6, 24), smile: meet > 0.3 || t > 29
+    who: 'girl', eyeDx: -meet, eyeDy: pulse(t, 15.2, 15.5, 16.8, 17.4),
+    blush: 0.85 * seg(t, 15.2, 16.2), smile: t > 17
   });
   // popcorn on her lap
   px(234, 138, 12, 11, '#e8e2d2');
@@ -231,31 +257,19 @@ function drawHandsCloseup(t) {
   px(120, 126, 6, 9, '#c84a4a'); px(121, 124, 4, 2, '#e8e2d2'); px(123, 118, 1, 7, '#e8e2d2');
   miniHand(136, 130, -1, skinB);
   // arms reaching to the middle
-  armTo(160, 1, bx + 3, 133, PAL.bShirtD, 120);
-  armTo(224, -1, hx2 - 3, hy2 + 3, PAL.gDressD, 125);
-  // his hand: creeps, flips open
-  if (flip <= 0) miniHand(bx, 131 + sq, 1, skinB);
-  else if (flip < 0.45) { px(bx, 129, 4, 9, mix(skinB, '#5c3a2a', 0.25)); px(bx + 3, 132, 8, 4, skinB); }
-  else miniOpen(bx - 1, 130 + sq, skinB, fold);
-  // her hand answers
-  miniHand(hx2, hy2 + sq, -1, skinG2);
-  // his fingers fold over hers
-  if (fold > 0) {
-    const out2 = mix(skinB, '#3a2418', 0.5);
-    const fh = Math.min(3, fold * 4);
-    for (let i = 0; i < 3; i++) {
-      px(hx2 - 6.4 + i * 3, hy2 - 1.6 + sq, 2.6, fh + 2.4, out2);
-      px(hx2 - 6 + i * 3, hy2 - 1.2 + sq, 1.8, fh + 1.6, skinB);
-    }
-    px(hx2 - 8 + stroke, hy2 + 5 + sq, 5, 2.5, skinB);
-  }
+  armTo(160, 1, bx + 3, by + 3, PAL.bShirtD, 120);
+  armTo(224, -1, hx2 - 3, hy2 + 3, PAL.gDressD, 127);
+  // her hand first — his lands warmly on top of it
+  miniHand(hx2, hy2 + sq * 0.5, -1, skinG2);
+  miniHand(bx, by + sq, 1, skinB);
+  if (grab >= 1) px(hx2 - 7 + stroke, hy2 + 4 + sq, 5, 2, skinB);   // his thumb, a soft stroke
   // sparks of contact + shy little hearts
-  sparkle(197, 130, 1.5 + pulse(t, 22.5, 22.7, 23.2, 23.8) * 1.5, '#ffd7de', pulse(t, 22.5, 22.7, 23.4, 24.2));
-  if (t > 29.2 && t < 33) for (let i = 0; i < 3; i++) {
-    const hu = ((t - 29.2) * 0.45 + i * 0.33) % 1;
-    heartSpr(180 + i * 12 + Math.sin(t * 2 + i * 2.1) * 3, 120 - hu * 24, 1.1, 0.35 * (1 - hu));
+  sparkle(200, 128, 1.5 + pulse(t, 15.1, 15.3, 15.8, 16.4) * 1.5, '#ffd7de', pulse(t, 15.1, 15.3, 16, 16.8));
+  if (t > 16.8 && t < 23) for (let i = 0; i < 3; i++) {
+    const hu = ((t - 16.8) * 0.45 + i * 0.33) % 1;
+    heartSpr(180 + i * 12 + Math.sin(t * 2 + i * 2.1) * 3, 118 - hu * 24, 1.1, 0.35 * (1 - hu));
   }
-  if (t > 31.4) sparkle(192, 118, 2.2, '#ffd7de', pulse(t, 31.4, 31.8, 32.4, 33));
+  if (t > 20.5) sparkle(192, 116, 2.2, '#ffd7de', pulse(t, 20.5, 21, 22.2, 23.4));
   glow(160, 103, 26, '#ffcfae', 0.12 * fl);         // screen light on their faces
   glow(224, 107, 26, '#ffcfae', 0.12 * fl);
   g.restore();
@@ -275,7 +289,7 @@ function frontPerson(cx, o) {
   const hair = boy ? PAL.bHair : PAL.gHair;
   const top = boy ? PAL.bShirt : PAL.gDress;
   const topD = boy ? PAL.bShirtD : PAL.gDressD;
-  const y0 = boy ? 96 : 101;                          // she's a head shorter
+  const y0 = boy ? 96 : 104;                          // petite — her head at his neck
   // torso
   px(cx - 10, y0 + 22, 20, 56 - (y0 - 96) - 22, top);
   px(cx - 10, y0 + 22, 20, 2, mix(top, '#ffffff', 0.25));
@@ -638,7 +652,7 @@ SCENES.push({
       if (t >= 27 && t < 31) { rx = lerp(192, 160, seg(t, 27, 31)); ry = lerp(82, 152, seg(t, 27, 31)); rs = lerp(1, 0.6, seg(t, 27, 31)); }
       else if (t >= 31 && t < 34.5) { rx = lerp(160, 216, seg(t, 31.2, 34.2)); ry = 152; rs = 0.6; }
       else if (t >= 34.5) { rx = 216; ry = 154; rs = 0.6; }
-      if (t >= 41.5) { rx = lerp(216, 228, seg(t, 41.5, 42.2)); ry = lerp(152, 157, seg(t, 41.5, 42.2)); rs = 0.6; }   // into her arms
+      if (t >= 41.5) { rx = lerp(216, 228, seg(t, 41.5, 42.2)); ry = lerp(152, 159, seg(t, 41.5, 42.2)); rs = 0.6; }   // into her arms
       drawBouquet(rx, ry, rs, t);
     }
 

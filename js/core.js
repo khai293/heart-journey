@@ -28,7 +28,7 @@ function resize() {
   vScale = Math.min(vw / W, vh / H);
   const cw = Math.round(W * vScale), ch = Math.round(H * vScale);
   cvs.style.width = cw + 'px'; cvs.style.height = ch + 'px';
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  const dpr = Math.min(devicePixelRatio || 1, 2);
   fxc.width = Math.round(cw * dpr); fxc.height = Math.round(ch * dpr);
   fxc.style.width = cw + 'px'; fxc.style.height = ch + 'px';
   makeVignette();
@@ -61,10 +61,21 @@ for (let k = 0; k < 3; k++) {
 let frameNo = 0;
 function drawOverlay() {
   fg.clearRect(0, 0, fxc.width, fxc.height);
+  // soft global bloom — bright pixels breathe a little light
+  try {
+    fg.save();
+    fg.globalCompositeOperation = 'lighter';
+    fg.globalAlpha = 0.15;
+    fg.filter = 'blur(' + Math.max(3, fxc.width / 220) + 'px)';
+    fg.imageSmoothingEnabled = true;
+    fg.drawImage(cvs, 0, 0, fxc.width, fxc.height);
+    fg.restore();
+    fg.filter = 'none';
+  } catch (e) {}
   if (vigCache) fg.drawImage(vigCache, 0, 0);
   const tile = grainTiles[frameNo % 3];
   fg.save();
-  fg.globalAlpha = 0.55;
+  fg.globalAlpha = 0.35;
   const pat = fg.createPattern(tile, 'repeat');
   fg.translate((frameNo * 37) % 128, (frameNo * 53) % 128);
   fg.fillStyle = pat;
