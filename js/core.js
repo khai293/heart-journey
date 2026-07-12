@@ -27,6 +27,7 @@ function resize() {
   const vw = innerWidth, vh = innerHeight;
   vScale = Math.min(vw / W, vh / H);
   const cw = Math.round(W * vScale), ch = Math.round(H * vScale);
+  if (cvs.width !== W * PXS) { cvs.width = W * PXS; cvs.height = H * PXS; }
   cvs.style.width = cw + 'px'; cvs.style.height = ch + 'px';
   const dpr = Math.min(devicePixelRatio || 1, 2);
   fxc.width = Math.round(cw * dpr); fxc.height = Math.round(ch * dpr);
@@ -61,13 +62,16 @@ for (let k = 0; k < 3; k++) {
 let frameNo = 0;
 function drawOverlay() {
   fg.clearRect(0, 0, fxc.width, fxc.height);
-  // soft global bloom — bright pixels breathe a little light
+  // dual-pass bloom — a tight halo plus a wide breath of light
   try {
     fg.save();
     fg.globalCompositeOperation = 'lighter';
-    fg.globalAlpha = 0.15;
-    fg.filter = 'blur(' + Math.max(3, fxc.width / 220) + 'px)';
     fg.imageSmoothingEnabled = true;
+    fg.globalAlpha = 0.10;
+    fg.filter = 'blur(' + Math.max(1.5, fxc.width / 480) + 'px)';
+    fg.drawImage(cvs, 0, 0, fxc.width, fxc.height);
+    fg.globalAlpha = 0.10;
+    fg.filter = 'blur(' + Math.max(4, fxc.width / 150) + 'px)';
     fg.drawImage(cvs, 0, 0, fxc.width, fxc.height);
     fg.restore();
     fg.filter = 'none';
@@ -170,6 +174,7 @@ function frame(now) {
   const dt = Math.min((now - lastNow) / 1000, 0.05);
   lastNow = now;
   frameNo++;
+  g.setTransform(PXS, 0, 0, PXS, 0, 0);   // draw in logical pixels, render supersampled
   if (state === 'menu' || state === 'end') {
     menuT += dt;
     drawPoster(menuT, state === 'end');

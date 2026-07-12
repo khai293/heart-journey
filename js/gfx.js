@@ -6,6 +6,7 @@
    ============================================================ */
 
 const W = 384, H = 216;
+const PXS = 2;                      // supersample: logical pixels render at 2x for silky light
 let g = null;                       // pixel context — assigned by core.js
 const TAU = Math.PI * 2;
 
@@ -108,6 +109,19 @@ function stars(n, t, yMax, a) {
     const x = R(i) * W, y = R(i + 50) * yMax;
     const tw = 0.5 + 0.5 * Math.sin(t * (0.8 + R(i + 99) * 1.5) + i * 2.3);
     px(x, y, 1, 1, rgba('#ffe9c8', al * (0.2 + 0.55 * tw)));
+    if (i % 9 === 0 && tw > 0.75) {                    // the bright ones twinkle a cross
+      const ca = al * (tw - 0.75) * 2.2;
+      px(x - 1, y, 1, 1, rgba('#ffe9c8', ca * 0.5)); px(x + 1, y, 1, 1, rgba('#ffe9c8', ca * 0.5));
+      px(x, y - 1, 1, 1, rgba('#ffe9c8', ca * 0.5)); px(x, y + 1, 1, 1, rgba('#ffe9c8', ca * 0.5));
+    }
+  }
+}
+/* sprinkle of deterministic surface noise — plaster, dust, tooth */
+function texNoise(x, y, w, h, seed, a) {
+  const n = Math.floor(w * h / 85);
+  for (let i = 0; i < n; i++) {
+    const xx = x + R(seed + i * 2) * w, yy = y + R(seed + i * 3 + 1) * h;
+    px(xx, yy, 1, 1, rgba(i % 2 ? '#ffffff' : '#000000', a));
   }
 }
 function moon(x, y, r, a) {

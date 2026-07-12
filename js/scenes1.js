@@ -231,6 +231,11 @@ function drawRestaurant(t) {
   px(0, GY, W, H - GY, '#4a3228');
   px(0, GY, W, 2, '#5e402e');
   for (let x = 20; x < W; x += 46) px(x, GY, 1, H - GY, '#3e2a22');
+  texNoise(0, 0, W, 104, 11, 0.035);                                 // plaster tooth on the walls
+  px(0, GY - 3, W, 3, '#3e2a1c');                                    // skirting board
+  // soft contact shadows
+  shadow(192, GY + 1, 62, 0.13); shadow(150, GY + 1, 16, 0.16); shadow(234, GY + 1, 16, 0.16);
+  shadow(310, GY + 1, 30, 0.12);
 
   // ------- characters -------
   const bob = (a, b) => 1.2 * Math.pow(Math.sin(clamp((t - a) / (b - a), 0, 1) * Math.PI * 6), 2) * pulse(t, a, a + 0.2, b - 0.2, b);
@@ -528,6 +533,7 @@ function drawSunsetStreet(t) {
   px(358, 133, 8, 8, '#8a8ca0'); px(358, 133, 8, 3, '#3a3440');
   px(346, 152, 34, 2, '#6a5a42');
   // other bikes sleeping in their bays
+  shadow(282, GY + 1, 28, 0.14); shadow(312, GY + 1, 28, 0.14); shadow(340, GY + 1, 28, 0.14);
   scooter(282, GY, { body: '#6a7a9e' });
   scooter(312, GY, { body: '#5e8a7a' });
   scooter(340, GY, { body: '#8a8ca0' });
@@ -539,11 +545,12 @@ function drawSunsetStreet(t) {
   const rideOff = seg(t, 51.5, 56);
   const bikeX = 254 + Math.pow(rideOff, 1.4) * 180;
   // his red scooter, parked — then leaving
-  if (t < 48.5) scooter(254, GY, {});
-  else scooter(bikeX, GY - Math.sin(t * 9) * 0.5 * rideOff, { light: false });
+  if (t < 48.5) { shadow(254, GY + 1, 28, 0.16); scooter(254, GY, {}); }
+  else { shadow(bikeX, GY + 1, 28, 0.16 * (1 - rideOff)); scooter(bikeX, GY - Math.sin(t * 9) * 0.5 * rideOff, { light: false }); }
   if (t < 37.6) {                                                  // walking in together
     const cx = lerp(46, 226, seg(t, 30.2, 37.2));
     const walking = t < 37.2;
+    shadow(cx + 6, GY + 1, 11, 0.13); shadow(cx - 8, GY + 1, 12, 0.13);
     person(cx + 6, GY, { who: 'girl', pose: walking ? 'walk' : 'stand', f: 1, frame: wf + 2 });
     person(cx - 8, GY, { who: 'boy', pose: walking ? 'walk' : 'stand', f: 1, frame: wf });
   } else {
@@ -557,6 +564,8 @@ function drawSunsetStreet(t) {
     const kiss = pulse(t, 44.3, 44.8, 45.6, 46.2);
     const startle = pulse(t, 45.8, 46, 46.8, 47.4);
     // she sees him off
+    shadow(232, GY + 1, 11, 0.13);
+    if (t < 48.5) shadow(bx, GY + 1, 12, 0.13);
     person(232, GY, {
       who: 'girl', pose: 'stand', f: 1, frame: wf + 2,
       arm: (t > 49 && t < 55) ? 'up' : 'down',
@@ -694,6 +703,7 @@ function drawChatOffice(t) {
   const GY = 172;
   // office, mid-morning
   vgrad(0, 0, W, GY, [[0, '#cfd8de'], [0.7, '#b8c4cc'], [1, '#a0aeb8']]);
+  texNoise(0, 0, W, 140, 31, 0.022);
   px(0, GY, W, H - GY, '#7a8694');
   px(0, GY, W, 2, '#94a0ac');
   // window with the city outside
@@ -809,6 +819,12 @@ SCENES.push({
         const nearSun = clamp(1 - Math.abs(wx + 5 - sun.x) / 60, 0, 1) * sunUp;
         px(wx, wy, 7 + r, 1, rgba(c3('#3a3a6e', '#c98a8a', '#eef8fc'), 0.13 + 0.32 * nearSun));
       }
+    }
+    // morning glitter on the water
+    if (sunUp > 0.4) for (let i = 0; i < 12; i++) {
+      const gx3 = 84 + R(i + 120) * 160, gy3 = HOR + 4 + R(i + 140) * 36;
+      const twk = Math.pow(Math.max(0, Math.sin(t * (2 + R(i)) + i * 2.7)), 6);
+      px(gx3, gy3, 1, 1, rgba('#fff6e2', twk * 0.8 * sunUp));
     }
     // gulls wake with the light
     for (let i = 0; i < 3; i++) {

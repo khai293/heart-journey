@@ -15,6 +15,7 @@ SCENES.push({
   draw(t) {
     const GY = 178;
     vgrad(0, 0, W, GY, [[0, '#4a2a30'], [0.6, '#3c2128'], [1, '#301a20']]);
+    texNoise(0, 0, W, 130, 21, 0.03);
     px(0, GY, W, H - GY, '#241418');
     for (let x = 14; x < W; x += 40) px(x, GY, 1, H - GY, '#1e1014');
     // window (night, left)
@@ -435,6 +436,7 @@ SCENES.push({
       const ox = W + 40 - ((t * (225 + k * 45) + k * 420) % per);
       if (ox > -40 && ox < W + 40) {
         const oy = 189 + Math.sin(t * 9 + k * 2) * 0.6;
+        shadow(ox, 194, 30, 0.16);
         g.save(); g.translate(ox, 0); g.scale(-1, 1); scooter(0, oy, {}); g.restore();
         person(ox + 3, oy - 1, {
           who: k ? 'girl' : 'boy', pose: 'ride', f: -1, seat: 11, footH: 7,
@@ -445,6 +447,7 @@ SCENES.push({
     // scooter + the two of them, bright in the morning light
     const bobY = Math.sin(t * 8.6) * 0.8;
     const sy = 193 + bobY;
+    shadow(152, 197, 34, 0.2);
     scooter(152, sy, { light: false });
     person(146, sy - 1, { who: 'boy', pose: 'ride', f: 1, seat: 11, footH: 7, arm: 'hold' });
     person(133, sy - 1, { who: 'girl', pose: 'ride', f: 1, seat: 11, footH: 7, arm: 'hugF', headDx: 1 });
