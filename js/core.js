@@ -16,10 +16,13 @@ for (const s of SCENES) { STARTS.push(TOTAL); TOTAL += s.dur; }
 const TITLES = ['Mở màn', 'Bữa ăn đầu tiên', 'Thư viện', 'Những dòng tin nhắn', 'Bình minh bên biển', 'Bữa tối', 'Rạp phim', 'Chuyến đi', 'Cầu hôn', 'Vĩ thanh'];
 
 /* state */
-let state = 'menu';            // menu | play | end
+let state = 'menu';            // menu | play | ask | yesHug | end
 let filmT = 0, prevFt = 0, playing = false;
-let lastNow = 0, menuT = 0;
+let lastNow = 0, menuT = 0, hugT = 0;
 let uiTimer = 0;
+const askEl = document.getElementById('ask');
+const btnYes = document.getElementById('btnYes');
+const btnNo = document.getElementById('btnNo');
 
 /* ---------- scaling ---------- */
 let vScale = 1;
@@ -170,6 +173,7 @@ function drawPoster(mt, isEnd) {
 }
 
 /* ---------- main loop ---------- */
+const ASK_CFG = { force: true, bpm: 64, root: 0, prog: [0, 5, 3, 4], pstyle: 'min', layers: { pad: 0.4, piano: 0.35 }, amb: {} };
 function frame(now) {
   const dt = Math.min((now - lastNow) / 1000, 0.05);
   lastNow = now;
@@ -178,12 +182,31 @@ function frame(now) {
   if (state === 'menu' || state === 'end') {
     menuT += dt;
     drawPoster(menuT, state === 'end');
+  } else if (state === 'ask') {
+    menuT += dt;
+    drawAskBg(menuT);
+    Music.setCfg(ASK_CFG); Music.tick(true);
+  } else if (state === 'yesHug') {
+    hugT += dt;
+    hugShot(hugT + 2);
+    for (let i = 0; i < 6; i++) {          // a shower of hearts for the answer
+      const hu = ((hugT * (0.25 + R(i + 100) * 0.2) + R(i + 110)) % 1);
+      heartSpr(40 + R(i + 120) * 300, 210 - hu * 190, 1.2 + R(i + 130), 0.3 * (1 - hu));
+    }
+    flash('#fff0f2', Math.max(0, 0.5 - hugT * 0.8));
+    Music.syncSongs(TOTAL - 21 + Math.min(hugT, 20), true, 0.75);
+    if (hugT > 11) {
+      state = 'end'; menuT = 0;
+      wrap.classList.add('menu');
+      Music.stopSongs();
+    }
   } else {
     if (playing) { prevFt = filmT; filmT += dt; }
     if (filmT >= TOTAL) {
-      filmT = TOTAL - 0.01; playing = false; state = 'end'; menuT = 0;
-      wrap.classList.add('menu'); wrap.classList.remove('hidecur');
-      Music.setCfg({ bpm: 60, root: 0, prog: [0], layers: {}, amb: {} });
+      filmT = TOTAL - 0.01; playing = false; state = 'ask'; menuT = 0;
+      askEl.classList.add('show');
+      wrap.classList.remove('hidecur');
+      Music.setCfg(ASK_CFG);
       Music.stopSongs();
     } else {
       render(filmT);
@@ -194,6 +217,26 @@ function frame(now) {
   drawOverlay();
   requestAnimationFrame(frame);
 }
+/* the question under the stars */
+function drawAskBg(mt) {
+  vgrad(0, 0, W, H, [[0, '#1c0f2a'], [0.6, '#2e1638'], [1, '#150a20']]);
+  stars(50, mt, 130, 0.55);
+  for (let i = 0; i < 10; i++) {
+    const bu = ((mt * 0.03 * (1 + R(i + 40)) + R(i + 50)) % 1);
+    glow(20 + R(i + 60) * 344, 210 - bu * 200, 3 + R(i + 70) * 5, i % 2 ? '#c06a8e' : '#8a6ac0', 0.10 * Math.sin(bu * Math.PI));
+  }
+  const beat = 1 + 0.06 * Math.pow(Math.sin(mt * 2.2), 8);
+  heartSpr(192, 40, 3.6 * beat, 0.8);
+  petals(mt, 12, { x0: 20, x1: 364, y0: 10, y1: 200 }, 0.5);
+  px(0, 176, W, 40, '#12081c');
+  shadow(160, 177, 12, 0.25); shadow(224, 177, 11, 0.25);
+  person(160, 176, { who: 'boy', pose: 'stand', f: 1, blush: 0.6 });
+  person(224, 176, { who: 'girl', pose: 'stand', f: -1, blush: 0.8 });
+  for (let i = 0; i < 6; i++)
+    sparkle(60 + R(i + 80) * 264, 30 + R(i + 90) * 130, 1.5 + R(i) * 1.5,
+      i % 2 ? '#ffe9a0' : '#ffd7de', 0.3 + 0.4 * Math.sin(mt * 2 + i * 2));
+  dim(0.15);
+}
 
 /* ---------- controls ---------- */
 function startFilm() {
@@ -203,8 +246,28 @@ function startFilm() {
   state = 'play'; filmT = 0; prevFt = 0; playing = true;
   songVol = 0.85;
   wrap.classList.remove('menu');
+  askEl.classList.remove('show');
   bumpUI();
 }
+/* the answer is yes */
+function startYesHug() {
+  askEl.classList.remove('show');
+  state = 'yesHug'; hugT = 0;
+  Music.sfx('burst'); Music.sfx('heart');
+}
+btnYes.addEventListener('click', e => { e.stopPropagation(); startYesHug(); });
+/* "No" is not really an option — it runs away */
+function dodgeNo(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const wr = wrap.getBoundingClientRect();
+  const nw = btnNo.offsetWidth || 120, nh = btnNo.offsetHeight || 52;
+  btnNo.style.position = 'absolute';
+  btnNo.style.left = Math.round(10 + Math.random() * Math.max(40, wr.width - nw - 20)) + 'px';
+  btnNo.style.top = Math.round(10 + Math.random() * Math.max(40, wr.height - nh - 20)) + 'px';
+  btnNo.style.margin = '0';
+}
+for (const ev of ['pointerenter', 'pointerdown', 'mousedown', 'touchstart', 'click'])
+  btnNo.addEventListener(ev, dodgeNo, { passive: false });
 function setPlaying(p) {
   if (state !== 'play') return;
   playing = p;
@@ -279,11 +342,20 @@ document.getElementById('ui').addEventListener('click', e => e.stopPropagation()
 
 wrap.addEventListener('click', () => {
   if (state === 'menu' || state === 'end') { startFilm(); return; }
+  if (state === 'ask') return;                 // the buttons do the talking
+  if (state === 'yesHug') {
+    if (hugT > 3) { state = 'end'; menuT = 0; wrap.classList.add('menu'); Music.stopSongs(); }
+    return;
+  }
   setPlaying(!playing);
 });
 window.addEventListener('mousemove', bumpUI);
 window.addEventListener('keydown', e => {
-  if (e.code === 'Space') { e.preventDefault(); state === 'play' ? setPlaying(!playing) : startFilm(); }
+  if (e.code === 'Space') {
+    e.preventDefault();
+    if (state === 'play') setPlaying(!playing);
+    else if (state === 'menu' || state === 'end') startFilm();
+  }
   else if (e.key === 'm') btnMute.click();
   else if (e.key === 'f') btnFull.click();
   else if (e.key === 'ArrowRight' && state === 'play') { const i = sceneAt(filmT); seekTo(STARTS[Math.min(i + 1, SCENES.length - 1)]); }

@@ -208,15 +208,7 @@ function drawRestaurant(t) {
     px(12 + i * 8, 54 + (i % 2), 4, 12, bc);
     px(13 + i * 8, 86, 3, 10, ['#4a7a5a', '#b0563a', '#69502e'][i % 3]);
   }
-  px(4, 128, 84, 50, '#4a2c1c'); px(4, 128, 84, 3, '#6b4530');       // counter
-  px(8, 116, 12, 12, '#3a3440'); px(10, 112, 8, 4, '#2c2834');       // register
-  px(11, 118, 6, 4, '#8ad2f0');
-  for (let i = 0; i < 3; i++) px(26, 122 - i * 4, 8, 3, '#ece4d0');  // stacked cups
-  px(44, 110, 26, 18, rgba('#bfe4f0', 0.30));                        // glass cake case
-  px(44, 110, 26, 1, '#8a94a8'); px(44, 127, 26, 1, '#8a94a8');
-  px(48, 120, 7, 6, '#ffd9e2'); px(49, 118, 5, 2, '#ff8aa5');        // little cakes
-  px(59, 121, 7, 5, '#e8c87a'); px(60, 119, 5, 2, '#8a5c3a');
-  steam(46, 108, t, 31, 4, 18, '#f4e3cc');
+  // (the till and cake case live off-screen behind the door — the wall shelves carry the corner)
   // chalkboard menu
   px(106, 44, 46, 36, '#2a2018'); px(110, 48, 38, 28, '#26312a');
   px(114, 53, 20, 2, rgba('#e8e2c8', 0.7)); px(114, 59, 26, 2, rgba('#e8e2c8', 0.55)); px(114, 65, 16, 2, rgba('#e8e2c8', 0.6));
@@ -265,6 +257,27 @@ function drawRestaurant(t) {
   // soft contact shadows
   shadow(192, GY + 1, 62, 0.13); shadow(150, GY + 1, 16, 0.16); shadow(234, GY + 1, 16, 0.16);
   shadow(310, GY + 1, 30, 0.12);
+  // dust drifting through the sunbeam
+  for (let i = 0; i < 8; i++) {
+    const du = (R(i + 700) + t * 0.03 * (0.6 + R(i + 705))) % 1;
+    px(lerp(326, 280, du) + Math.sin(t + i * 2) * 4, lerp(46, GY - 8, du), 1, 1,
+      rgba('#fff3d8', 0.38 * (0.4 + 0.6 * R(i + 7))));
+  }
+  // ---- the back tables, already busy this morning ----
+  const LGY = GY - 8;
+  shadow(112, LGY + 1, 46, 0.10); shadow(264, LGY + 1, 34, 0.10);
+  stool(88, LGY); stool(136, LGY);
+  person(90, LGY, { who: 'girl', pose: 'sit', f: 1, seat: 4, arm: 'hold', sil: '#8a7a72' });
+  person(134, LGY, { who: 'boy', pose: 'sit', f: -1, seat: 4, arm: 'lap', sil: '#7a828e', bob: Math.pow(Math.sin(t * 1.1), 2) * 0.8 });
+  px(98, LGY - 10, 30, 3, '#6b4530'); px(101, LGY - 7, 3, 7, '#54331f'); px(122, LGY - 7, 3, 7, '#54331f');
+  bowl(106, LGY - 12); bowl(119, LGY - 12);
+  steam(107, LGY - 15, t, 51, 3, 6, '#fff3dc'); steam(120, LGY - 15, t, 57, 3, 6, '#fff3dc');
+  if (t > 6 && t < 8.5) note(112, LGY - 34 - (t - 6) * 4, '#c9b98a', pulse(t, 6, 6.4, 7.8, 8.5));
+  stool(276, LGY);
+  person(276, LGY, { who: 'boy', pose: 'sit', f: -1, seat: 4, arm: 'hold', sil: '#6a7a6e', bob: Math.abs(Math.sin(t * 3)) * 0.6 });
+  px(248, LGY - 10, 24, 3, '#6b4530'); px(251, LGY - 7, 3, 7, '#54331f'); px(266, LGY - 7, 3, 7, '#54331f');
+  bowl(259, LGY - 12);
+  steam(260, LGY - 15, t, 63, 3, 6, '#fff3dc');
 
   // ------- characters -------
   const bob = (a, b) => 1.2 * Math.pow(Math.sin(clamp((t - a) / (b - a), 0, 1) * Math.PI * 6), 2) * pulse(t, a, a + 0.2, b - 0.2, b);
@@ -580,6 +593,14 @@ function drawSunsetStreet(t) {
   bikeSpr(186, GY, '#4a7ac0', '#8a8ea8'); bikeSpr(200, GY, '#c05f7a', '#8a8ea8');
   // pigeons pecking at crumbs
   pigeon(96, GY + 7, t, 0); pigeon(112, GY + 10, t, 1); pigeon(330, GY + 8, t, 2);
+  // butterflies around the trees
+  for (let i = 0; i < 2; i++) {
+    const bfx2 = 58 + i * 90 + Math.sin(t * (1.1 + i * 0.3)) * 14;
+    const bfy2 = 126 + Math.sin(t * 2.3 + i * 2) * 7;
+    const bc2 = i ? '#ffe66e' : '#fff6e2';
+    px(bfx2, bfy2, 2, 1, bc2);
+    px(bfx2 + (Math.sin(t * 9 + i * 3) > 0 ? 2 : -1), bfy2 - 1, 1, 1, bc2);
+  }
   petals(t, 7, { x0: 0, x1: W, y0: 60, y1: 168 }, 0.45);
   // ---- the parking lot ----
   // painted bay lines

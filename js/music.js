@@ -246,7 +246,7 @@ const Music = (() => {
     if (key === cfgKey || !ctx) return;
     cfgKey = key; cfg = c;
     const t = ctx.currentTime;
-    const L = songMode ? {} : (c.layers || {});
+    const L = (songMode && !c.force) ? {} : (c.layers || {});
     for (const n of ['piano', 'pluck', 'pad', 'str', 'bass', 'mel'])
       buses[n].gain.setTargetAtTime(L[n] || 0, t, 0.7);
     const A = c.amb || {};

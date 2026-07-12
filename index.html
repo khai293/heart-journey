@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07060c">
 <title>The Heart Journey</title>
 <style>
   html,body{margin:0;height:100%;background:#07060c;overflow:hidden;-webkit-tap-highlight-color:transparent}
-  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#07060c;cursor:pointer;user-select:none}
+  #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#07060c;cursor:pointer;user-select:none;touch-action:manipulation}
   #wrap.hidecur{cursor:none}
   canvas{image-rendering:pixelated;image-rendering:crisp-edges}
   #px{position:absolute;filter:saturate(1.08) contrast(1.03) brightness(1.01)}
@@ -28,6 +29,22 @@
   #hint{position:absolute;bottom:7%;width:100%;text-align:center;color:rgba(255,235,225,.55);
         font:11px/1.6 'Segoe UI',system-ui,sans-serif;letter-spacing:.45em;text-transform:uppercase;
         opacity:0;transition:opacity 1.2s;pointer-events:none;animation:bre 2.6s ease-in-out infinite}
+  #ask{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+       justify-content:flex-start;padding-top:30vh;z-index:8;pointer-events:none;text-align:center}
+  #ask.show{display:flex}
+  #askText{font:700 clamp(22px,5.5vw,46px)/1.35 'Segoe UI',system-ui,sans-serif;color:#fff;
+       text-shadow:0 0 20px rgba(255,90,130,.95),0 2px 10px rgba(0,0,0,.65);pointer-events:none;padding:0 16px}
+  #askBtns{margin-top:30px;display:flex;gap:30px}
+  #askBtns button{pointer-events:auto;font:700 clamp(16px,3.4vw,26px)/1 'Segoe UI',system-ui,sans-serif;
+       padding:15px 38px;border-radius:16px;border:none;cursor:pointer;min-width:120px;min-height:52px}
+  #btnYes{background:linear-gradient(180deg,#ff7d9c,#e83e68);color:#fff;
+       box-shadow:0 4px 22px rgba(255,90,130,.55);transition:transform .15s}
+  #btnYes:hover{transform:scale(1.1)}
+  #btnNo{background:#3a3a4a;color:#cfd0dc}
+  @media (pointer:coarse){
+    .dot{width:14px;height:14px}
+    button.ic{width:44px;height:44px}
+  }
   #wrap.menu #hint{opacity:1}
   @keyframes bre{0%,100%{opacity:.35}50%{opacity:.9}}
   #wrap.menu #hint{animation:bre 2.6s ease-in-out infinite}
@@ -38,6 +55,13 @@
   <canvas id="px" width="384" height="216"></canvas>
   <canvas id="fx"></canvas>
   <div id="hint">chạm để bắt đầu</div>
+  <div id="ask">
+    <div id="askText">Làm người yêu anh nhé?</div>
+    <div id="askBtns">
+      <button id="btnYes">Yes 💕</button>
+      <button id="btnNo" tabindex="-1">No</button>
+    </div>
+  </div>
   <div id="ui">
     <button class="ic" id="bPause" title="Tạm dừng / Tiếp tục"></button>
     <div id="dots"></div>

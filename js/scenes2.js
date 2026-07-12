@@ -106,6 +106,12 @@ SCENES.push({
     steam(198, GY - 30, t, 3, 12, 26, '#ffe9d8');
     steam(198, GY - 34, t, 21, 8, 14, '#fff3dc');
     glow(198, GY - 30, 34, '#ff9a4a', 0.22);
+    // tiny embers rising off the burner
+    for (let i = 0; i < 4; i++) {
+      const eu = (t * (0.8 + R(i + 800) * 0.5) + R(i + 810)) % 1;
+      px(196 + (R(i + 820) - 0.5) * 12 + Math.sin(t * 2 + i) * 2, GY - 17 - eu * 22, 1, 1,
+        rgba('#ffb45e', (1 - eu) * 0.7));
+    }
     // emotes
     if (t > 10 && t < 12) note(170, GY - 46 - (t - 10) * 5, '#ffd98a', pulse(t, 10, 10.4, 11.4, 12));
     if (t > 18 && t < 20) note(228, GY - 46 - (t - 18) * 5, '#ff9dab', pulse(t, 18, 18.4, 19.4, 20));

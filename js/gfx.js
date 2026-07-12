@@ -6,7 +6,8 @@
    ============================================================ */
 
 const W = 384, H = 216;
-const PXS = 2;                      // supersample: logical pixels render at 2x for silky light
+// supersample: 3x "64-bit" rendering on desktop, 2x on small devices to stay smooth
+const PXS = (typeof screen !== 'undefined' && Math.min(screen.width || 1024, screen.height || 768) < 500) ? 2 : 3;
 let g = null;                       // pixel context — assigned by core.js
 const TAU = Math.PI * 2;
 
