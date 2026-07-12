@@ -76,18 +76,22 @@ function shadow(x, y, w, a) {
 }
 
 /* ---------- sprites ---------- */
-const HEART_MAP = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000'];
+const HEART_MAP = ['0110110', '1111111', '1111111', '1111111', '0111110', '0011100'];
 function heartSpr(cx, cy, cell, glowA) {
   if (cell <= 0) return;
   const w = 7 * cell, h = 6 * cell, x0 = cx - w / 2, y0 = cy - h / 2;
   const ga = glowA === undefined ? 0.5 : glowA;
   if (ga > 0) glow(cx, cy, Math.max(7, w * 1.5), '#ff4d64', ga * 0.55);
+  // cells tile edge-to-edge so the heart stays solid at any size
   for (let r = 0; r < 6; r++) for (let q = 0; q < 7; q++) {
     if (HEART_MAP[r][q] === '1') {
       let c = '#ff4d64';
-      if (r >= 3) c = '#d92e48';
-      if ((r === 0 && q === 1) || (r === 1 && (q === 1 || q === 2))) c = '#ff9dab';
-      px(x0 + q * cell, y0 + r * cell, cell, cell, c);
+      if (r >= 4) c = '#d92e48';
+      if ((r === 0 && q === 1) || (r === 1 && (q === 1 || q === 2)) || (r === 2 && q === 1)) c = '#ff9dab';
+      const xa = Math.round(x0 + q * cell), xb = Math.round(x0 + (q + 1) * cell);
+      const ya = Math.round(y0 + r * cell), yb = Math.round(y0 + (r + 1) * cell);
+      g.fillStyle = c;
+      g.fillRect(xa, ya, Math.max(1, xb - xa), Math.max(1, yb - ya));
     }
   }
 }
@@ -275,9 +279,13 @@ function person(x, y, o) {
       r(0 + dx, b + 4, 1, 1, col(PAL.glass)); r(3 + dx, b + 4, 1, 1, col(PAL.glass));
       r(-2 + dx, b + 5, 2, 1, col(PAL.glass));           // temple arm
       r(1 + dx, b + 4, 2, 1, col(PAL.glassIn));
+      r(0 + dx, b + 7, 3, 1, col('#3e3e4e'));            // shine in her dark hair
     }
-    r(1 + dx, b + 4, 1, 1, eyeC);                        // eye (facing side)
+    if (!sil) r(-3 + dx, b + 6, 1, 6, mix(skin, '#8a5136', 0.22));   // shaded far cheek
+    if (boy) r(1 + dx, b + 5, 1, 2, eyeC);               // his eye, bright and open
+    else r(1 + dx, b + 4, 1, 1, eyeC);                   // her eye behind the lens
     if (!sil && boy) r(2 + dx, b + 2, 2, 1, col('#c07a5a'));   // his easy smile
+    if (!sil && !boy) r(2 + dx, b + 1, 1, 1, col('#c07a5a')); // her small smile
     if (!sil && o.blush) r(2 + dx, boy ? b + 3 : b + 2, 2, 1, rgba(PAL.cheek, clamp(o.blush, 0, 1)));
     if (!sil && o.rim) { r(3 + dx, b + 7, 1, 7, o.rim); }
     return b;
@@ -299,6 +307,7 @@ function person(x, y, o) {
       r(bdx - 1, 2, 3, 2, shoe); r(fdx + 1, 2, 3, 2, shoe);
       r(-3, 17, 6, 9, top); r(-3, 17, 1, 9, topD);
       r(-1, 17, 2, 1, topD);                             // collar
+      if (!sil) r(-3, 9, 6, 1, col('#33415e'));          // belt
       // arm
       if (armMode === 'up')        { r(2, 21, 2, 6, topD); r(2, 23, 2, 2, skin); }
       else if (armMode === 'hold') { r(1, 13, 6, 2, topD); r(6, 13, 2, 2, skin); }
@@ -311,6 +320,7 @@ function person(x, y, o) {
       r(-3, 11, 6, 3, top);                              // navy top
       r(-4, 8, 8, 3, top);                               // skirt flare
       r(-4, 8, 1, 3, topD); r(-3, 11, 1, 3, topD);
+      if (!sil) { r(-1, 11, 3, 1, col('#e8ecf4')); r(-4, 6, 8, 1, col('#3e4c72')); }   // collar + hem
       if (armMode === 'up')        { r(2, 14, 2, 4, topD); r(2, 16, 2, 2, skin); }
       else if (armMode === 'hold') { r(1, 8, 4, 2, topD); r(4, 8, 2, 2, skin); }
       else if (armMode === 'face') { r(2, 11, 2, 2, topD); r(2, 12, 2, 2, skin); }
@@ -330,6 +340,7 @@ function person(x, y, o) {
     if (boy) {
       r(-3 + lean, s + 10, 6, 9, top);
       r(-3 + lean, s + 10, 1, 9, topD);
+      if (!sil) r(-3 + lean, s + 2, 6, 1, col('#33415e'));   // belt
       if (armMode === 'up')        { r(2 + lean, s + 14, 2, 6, topD); r(2 + lean, s + 16, 2, 2, skin); }
       else if (armMode === 'hold') { r(1 + lean, s + 7, 6, 2, topD); r(6 + lean, s + 7, 2, 2, skin); }
       else if (armMode === 'face') { r(2 + lean, s + 10, 2, 4, topD); r(2 + lean, s + 11, 2, 2, skin); }
@@ -340,6 +351,7 @@ function person(x, y, o) {
       r(-2, s + 3, 8, 3, top); r(-2, s + 3, 1, 3, topD); // skirt over lap
       r(-3 + lean, s + 6, 6, 5, top);
       r(-3 + lean, s + 6, 1, 5, topD);
+      if (!sil) r(-1 + lean, s + 6, 3, 1, col('#e8ecf4'));   // collar
       if (armMode === 'up')        { r(2 + lean, s + 9, 2, 4, topD); r(2 + lean, s + 11, 2, 2, skin); }
       else if (armMode === 'hold') { r(1 + lean, s + 5, 4, 2, topD); r(4 + lean, s + 5, 2, 2, skin); }
       else if (armMode === 'face') { r(2 + lean, s + 7, 2, 2, topD); r(2 + lean, s + 8, 2, 2, skin); }

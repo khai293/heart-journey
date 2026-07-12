@@ -128,16 +128,16 @@ SCENES.push({
     [0, { bpm: 60, root: 4, prog: [0, 5, 3, 4], pstyle: 'min', layers: { piano: 0.5, pad: 0.4 }, amb: { hum: 0.5 } }],
     [27, { bpm: 60, root: 4, prog: [0, 5, 3, 4], pstyle: 'min', layers: { piano: 0.55, pad: 0.5, mel: 0.5, str: 0.3 }, amb: { hum: 0.4 } }]
   ],
-  sfx: [[15.1, 'kiss'], [17, 'chime'], [36.1, 'heart']],
+  sfx: [[12.5, 'kiss'], [13.8, 'chime'], [36.1, 'heart']],
   draw(t) {
-    const closeup = t >= 10 && t < 27;
+    const closeup = t >= 8 && t < 21;
     if (!closeup) {
       cinemaRoom(t, {
         screen: 0.5, beam: 0.75, lamps: 0,
         extras: true, exclude: { row: 2, x0: 172, x1: 218 },
         content: S => movieOnScreen(S, t),
-        midDraw: () => coupleHeads(186, 204 - 3 * seg(t, 30, 32), 186,
-          { lum: 0.42, hands: t > 27, leanG: -2 * seg(t, 30, 32) })
+        midDraw: () => coupleHeads(186, 204 - 3 * seg(t, 24, 26), 186,
+          { lum: 0.42, hands: t > 21, leanG: -2 * seg(t, 24, 26) })
       });
     } else {
       drawHandsCloseup(t);
@@ -235,25 +235,25 @@ function drawHandsCloseup(t) {
   /* story beats: one glance, one breath — and he simply takes her hand */
   const skinB = mix(PAL.skin, '#c8814e', 0.35);
   const skinG2 = mix(PAL.skinG, '#ffffff', 0.18);
-  const grab = seg(t, 14.2, 15.2);
-  const startle = 1.5 * pulse(t, 15.2, 15.35, 15.9, 16.3);
+  const grab = seg(t, 11.8, 12.6);
+  const startle = 1.5 * pulse(t, 12.6, 12.75, 13.2, 13.6);
   const hx2 = 206, hy2 = 130 - startle;
-  let bx = 168 + 10 * seg(t, 12.4, 13.6);
+  let bx = 168 + 10 * seg(t, 10.2, 11.2);
   bx = lerp(bx, hx2 - 9, grab);
   const by = lerp(131, 128, grab) - Math.sin(grab * Math.PI) * 5;
-  const sq = pulse(t, 17.8, 18.05, 18.35, 18.75) + pulse(t, 20.6, 20.85, 21.15, 21.55);
-  const stroke = Math.sin(seg(t, 19, 19.8) * Math.PI) * 1.5;
+  const sq = pulse(t, 14.8, 15.05, 15.35, 15.75) + pulse(t, 17, 17.25, 17.55, 17.95);
+  const stroke = Math.sin(seg(t, 15.8, 16.6) * Math.PI) * 1.5;
 
   // faces: a quick glance, then eyes that meet and stay
-  const bGlance = pulse(t, 12, 12.4, 14, 14.6);
-  const meet = seg(t, 16.6, 17.4) * (1 - seg(t, 24.2, 25.4));
+  const bGlance = pulse(t, 9.4, 9.8, 10.8, 11.4);
+  const meet = seg(t, 13.6, 14.4) * (1 - seg(t, 18.6, 19.6));
   frontPerson(160, {
-    who: 'boy', eyeDx: bGlance + meet, blush: 0.3 + 0.5 * seg(t, 12, 15.5),
-    smile: t > 15
+    who: 'boy', eyeDx: bGlance + meet, blush: 0.3 + 0.5 * seg(t, 9.5, 12.4),
+    smile: t > 12.4
   });
   frontPerson(224, {
-    who: 'girl', eyeDx: -meet, eyeDy: pulse(t, 15.2, 15.5, 16.8, 17.4),
-    blush: 0.85 * seg(t, 15.2, 16.2), smile: t > 17
+    who: 'girl', eyeDx: -meet, eyeDy: pulse(t, 12.6, 12.9, 13.8, 14.4),
+    blush: 0.85 * seg(t, 12.6, 13.4), smile: t > 14.2
   });
   // popcorn on her lap
   px(234, 138, 12, 11, '#e8e2d2');
@@ -268,7 +268,7 @@ function drawHandsCloseup(t) {
     px(ax - 6, 140, 12, 22, '#2c2444');
   }
   // a popcorn kernel jumps when she startles
-  const popU = lin(t, 15.2, 15.9);
+  const popU = lin(t, 12.6, 13.3);
   if (popU > 0 && popU < 1) {
     px(238 - popU * 6, 134 - Math.sin(popU * Math.PI) * 10 + popU * 4, 2, 2, '#ffedbe');
   }
@@ -283,12 +283,12 @@ function drawHandsCloseup(t) {
   miniHand(bx, by + sq, 1, skinB);
   if (grab >= 1) px(hx2 - 7 + stroke, hy2 + 4 + sq, 5, 2, skinB);   // his thumb, a soft stroke
   // sparks of contact + shy little hearts
-  sparkle(200, 128, 1.5 + pulse(t, 15.1, 15.3, 15.8, 16.4) * 1.5, '#ffd7de', pulse(t, 15.1, 15.3, 16, 16.8));
-  if (t > 16.8 && t < 23) for (let i = 0; i < 3; i++) {
-    const hu = ((t - 16.8) * 0.45 + i * 0.33) % 1;
+  sparkle(200, 128, 1.5 + pulse(t, 12.5, 12.7, 13.2, 13.8) * 1.5, '#ffd7de', pulse(t, 12.5, 12.7, 13.4, 14.2));
+  if (t > 14.2 && t < 20) for (let i = 0; i < 3; i++) {
+    const hu = ((t - 14.2) * 0.5 + i * 0.33) % 1;
     heartSpr(180 + i * 12 + Math.sin(t * 2 + i * 2.1) * 3, 118 - hu * 24, 1.1, 0.35 * (1 - hu));
   }
-  if (t > 20.5) sparkle(192, 116, 2.2, '#ffd7de', pulse(t, 20.5, 21, 22.2, 23.4));
+  if (t > 17) sparkle(192, 116, 2.2, '#ffd7de', pulse(t, 17, 17.5, 19, 20.2));
   glow(160, 103, 26, '#ffcfae', 0.12 * fl);         // screen light on their faces
   glow(224, 107, 26, '#ffcfae', 0.12 * fl);
   g.restore();
@@ -641,9 +641,9 @@ SCENES.push({
     glow(192, GY + 8, 90, '#6a4a9e', 0.12);
     if (t >= 15 && t < 29) glow(192, GY + 6, 70, '#ff4d64', 0.10 * (1 - seg(t, 26.5, 29)));   // the heart mirrored in the floor
 
-    // couple walks in
+    // the two of them walk in together
     const bxw = lerp(56, 150, seg(t, 0.5, 4.5));
-    const gxw = lerp(328, 234, seg(t, 0.8, 4.8));
+    const gxw = t < 4.3 ? bxw - 16 : lerp(134, 234, seg(t, 4.3, 7.2));
     const wf = Math.floor(t * 7);
 
     // hearts fly from HUD → orbit → merge
@@ -727,8 +727,8 @@ SCENES.push({
     }
     const trem = pulse(t, 36, 36.2, 37.4, 37.8) * Math.sin(t * 30) * 0.7;
     const nod = (pulse(t, 39, 39.2, 39.5, 39.8) + pulse(t, 39.9, 40.1, 40.4, 40.7)) * 2;
-    person((t < 5 ? gxw : 234) + trem, GY, {
-      who: 'girl', pose: t < 5.2 ? 'walk' : 'stand', f: -1, frame: wf + 2,
+    person((t < 7.2 ? gxw : 234) + trem, GY, {
+      who: 'girl', pose: t < 7.2 ? 'walk' : 'stand', f: t < 7.4 ? 1 : -1, frame: wf + 2,
       arm: (t > 35.5 && t < 40.5) ? 'face' : (t > 41 ? 'hold' : 'down'),
       headDy: -nod, blush: seg(t, 35, 37), shade: 0.15
     });

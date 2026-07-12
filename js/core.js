@@ -300,7 +300,7 @@ window.addEventListener('resize', resize);
   const c = document.createElement('canvas'); c.width = 16; c.height = 16;
   const cc = c.getContext('2d');
   cc.fillStyle = '#ff4d64';
-  const m = ['0110110', '1111111', '1111111', '0111110', '0011100', '0001000'];
+  const m = ['0110110', '1111111', '1111111', '1111111', '0111110', '0011100'];
   for (let r = 0; r < 6; r++) for (let q = 0; q < 7; q++)
     if (m[r][q] === '1') cc.fillRect(1 + q * 2, 2 + r * 2, 2, 2);
   const l = document.createElement('link');

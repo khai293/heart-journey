@@ -143,19 +143,19 @@ SCENES.push({
     const lamps = 0.7 * (1 - seg(t, 20.5, 24));
     const scrLum = 0.10 * beam + 0.9 * seg(t, 24, 28.5);
     const boyX = lerp(330, 183, seg(t, 8, 12.5));
-    const girlX = lerp(334, 219, seg(t, 15.5, 20));
+    const girlX = t < 12.5 ? boyX + 16 : lerp(199, 219, seg(t, 12.5, 14.2));
     cinemaRoom(t, {
       screen: scrLum, beam, lamps,
       extras: true, exclude: { row: 2, x0: 168, x1: 234 },
       midDraw() {
-        // boy walking in, then seated
+        // the two of them come in together, side by side
         if (t >= 8 && t < 12.8) {
           person(boyX, 196, { who: 'boy', pose: 'walk', f: -1, frame: Math.floor(t * 7), shade: 0.82 });
         }
-        if (t >= 15.5 && t < 20.4) {
-          person(girlX, 196, { who: 'girl', pose: 'walk', f: -1, frame: Math.floor(t * 7), shade: 0.82 });
+        if (t >= 8 && t < 14.4) {
+          person(girlX, 196, { who: 'girl', pose: 'walk', f: -1, frame: Math.floor(t * 7 + 2), shade: 0.82 });
         }
-        const bSeat = t >= 12.8, gSeat = t >= 20.4;
+        const bSeat = t >= 12.8, gSeat = t >= 14.4;
         if (bSeat && gSeat) coupleHeads(183, 219, 186, { lum: scrLum });
         else if (bSeat) coupleHeads(183, -40, 186, { lum: scrLum });
       }
@@ -175,7 +175,7 @@ SCENES.push({
     [0, { bpm: 88, root: 0, prog: [0, 4, 5, 3], pstyle: 'arp', layers: { piano: 0.8, bass: 0.5, pluck: 0.45 }, amb: {} }],
     [44, { bpm: 88, root: 0, prog: [3, 4, 0, 0], pstyle: 'chords', layers: { piano: 0.6, pad: 0.4, bass: 0.3 }, amb: {} }]
   ],
-  sfx: [[3.9, 'chime'], [11.6, 'chime'], [48.9, 'heart']],
+  sfx: [[3.9, 'chime'], [48.9, 'heart']],
   draw(t) {
     if (t < 48.5) drawRestaurant(t);
     else drawCh1Exterior(t);
@@ -249,7 +249,7 @@ function drawRestaurant(t) {
     glow(lx, 42, 26, '#ffb45e', 0.10);
   }
   // wooden door with a little bell
-  const open = pulse(t, 3.5, 4.2, 6.2, 7.2) + pulse(t, 11.2, 11.9, 14.6, 15.6) + pulse(t, 44.5, 45.2, 50, 51);
+  const open = pulse(t, 3.5, 4.2, 7.6, 8.6) + pulse(t, 44.5, 45.2, 50, 51);
   px(24, 106, 38, GY - 106, '#3a2318');
   px(28, 110, 30, GY - 110, open > 0.05 ? '#140f1a' : '#54331f');
   if (open > 0.05) px(28 + 24 * (1 - open), 110, Math.max(2, 28 * (1 - open)), GY - 110, '#54331f');
@@ -269,9 +269,11 @@ function drawRestaurant(t) {
   // ------- characters -------
   const bob = (a, b) => 1.2 * Math.pow(Math.sin(clamp((t - a) / (b - a), 0, 1) * Math.PI * 6), 2) * pulse(t, a, a + 0.2, b - 0.2, b);
   // girl (always painted before the table so she can pass behind it)
-  if (t >= 11.5) {
-    if (t < 17.3) {
-      person(lerp(44, 234, seg(t, 11.5, 17)), GY - 2, { who: 'girl', pose: 'walk', f: 1, frame: Math.floor(t * 7) });
+  if (t >= 4.4) {
+    if (t < 12.6) {
+      // in together, at his side — then around the table to her seat
+      const gwx = t < 8.9 ? lerp(44, 150, seg(t, 4, 8.8)) - 13 : lerp(137, 234, seg(t, 8.9, 12.5));
+      person(gwx, GY - 2, { who: 'girl', pose: 'walk', f: 1, frame: Math.floor(t * 7 + 2) });
     } else if (t < 44.7) {
       const look = pulse(t, 23, 23.6, 25, 25.8);
       person(234, GY, {
