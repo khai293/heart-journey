@@ -124,6 +124,30 @@ function texNoise(x, y, w, h, seed, a) {
     px(xx, yy, 1, 1, rgba(i % 2 ? '#ffffff' : '#000000', a));
   }
 }
+/* a little pigeon, pecking about */
+function pigeon(x, y, t, i) {
+  const peck = Math.sin(t * 2.6 + i * 2.1) > 0.55 ? 1 : 0;
+  px(x, y - 4 + peck, 4, 3, '#8a8ca0');
+  px(x - 1, y - 3, 3, 2, '#7a7c90');
+  px(x + 3, y - 5 + peck * 2, 2, 2, '#6a6c80');
+  px(x + 5, y - 4 + peck * 2, 1, 1, '#c8963f');
+  px(x + 1, y - 1, 1, 1, '#c05f4a'); px(x + 3, y - 1, 1, 1, '#c05f4a');
+}
+/* a steaming cup of something warm */
+function teacup(x, y, t, seed) {
+  px(x, y - 3, 5, 3, '#ece4d0'); px(x + 5, y - 2, 1, 1, '#ece4d0');
+  px(x + 1, y - 3, 3, 1, '#8a5c3a');
+  steam(x + 2, y - 5, t, seed, 3, 3, '#fff3dc');
+}
+/* a parked bicycle in profile; bg = pavement colour showing through the wheels */
+function bikeSpr(x, y, c, bg) {
+  disc(x - 5, y - 4, 4, '#2c2c38'); disc(x + 5, y - 4, 4, '#2c2c38');
+  disc(x - 5, y - 4, 2, bg); disc(x + 5, y - 4, 2, bg);
+  px(x - 4, y - 8, 9, 2, c);
+  px(x - 2, y - 11, 2, 4, c); px(x + 3, y - 12, 2, 5, c);
+  px(x - 4, y - 12, 4, 1, '#2c2c38');                    // saddle
+  px(x + 2, y - 13, 4, 1, '#2c2c38');                    // handlebars
+}
 function moon(x, y, r, a) {
   const al = a === undefined ? 1 : a;
   glow(x, y, r * 3.2, '#fff3d0', 0.35 * al);

@@ -36,6 +36,10 @@ SCENES.push({
     // shelf with jars
     px(300, 96, 70, 4, '#54331f');
     for (let i = 0; i < 6; i++) px(306 + i * 11, 84, 6, 12, ['#b0563a', '#8a7a3c', '#4a7a5a'][i % 3]);
+    // second shelf with stacked bowls
+    px(300, 122, 70, 3, '#54331f');
+    for (let k = 0; k < 3; k++) for (let i = 0; i < 3; i++)
+      px(306 + k * 22, 119 - i * 3, 12, 3, i % 2 ? '#ece4d0' : '#c9b98a');
     // hanging cloth banner with a little heart
     px(174, 52, 48, 30, '#8c2830'); px(174, 52, 48, 3, '#5c1a20');
     px(178, 56, 40, 22, '#a03440');
@@ -77,6 +81,12 @@ SCENES.push({
     // table
     px(154, GY - 13, 88, 4, '#6b4530'); px(154, GY - 13, 88, 1, '#8a5c3a');
     px(160, GY - 9, 4, 9, '#4a2e18'); px(232, GY - 9, 4, 9, '#4a2e18');
+    // side dishes and drinks
+    px(160, GY - 15, 7, 2, '#e8e2d2'); px(161, GY - 16, 5, 1, '#4a8a5a');
+    px(229, GY - 15, 7, 2, '#e8e2d2'); px(230, GY - 16, 5, 1, '#e86a5a');
+    px(170, GY - 18, 3, 5, rgba('#e8a04a', 0.85)); px(170, GY - 18, 3, 1, '#fff3dc');
+    px(223, GY - 18, 3, 5, rgba('#e8a04a', 0.85)); px(223, GY - 18, 3, 1, '#fff3dc');
+    glow(198, GY - 12, 28, '#ff6a50', 0.08);           // lantern light pooling on the wood
     // burner + pot
     px(188, GY - 15, 22, 3, '#20222f');
     px(184, GY - 26, 30, 11, '#7a2830'); px(184, GY - 26, 30, 2, '#9a3a40');
@@ -209,12 +219,14 @@ function drawHandsCloseup(t) {
 
   g.save();
   g.translate(192, 124); g.scale(1.5, 1.5); g.translate(-192, -124);
-  // plush cinema seats with rounded tops
+  // plush cinema seats with rounded tops and stitched panels
   for (const cx of [96, 160, 224, 288]) {
     px(cx - 26, 84, 52, 68, '#4a2334');
     px(cx - 22, 79, 44, 8, '#4a2334');
     px(cx - 20, 85, 40, 60, '#5e3042');
     px(cx - 20, 85, 40, 2, '#754055');
+    px(cx - 1, 88, 1, 54, rgba('#3a1b28', 0.7));       // centre seam
+    px(cx - 20, 112, 40, 1, rgba('#3a1b28', 0.5));
   }
   glow(192, 118, 80, '#ff9dab', 0.07);
   // neighbours, lost in the film
@@ -248,11 +260,17 @@ function drawHandsCloseup(t) {
   px(234, 138, 3, 11, '#c84a4a'); px(240, 138, 3, 11, '#c84a4a');
   for (let i = 0; i < 5; i++) px(235 + R(i) * 9, 135 + R(i + 4) * 3, 2, 2, '#ffedbe');
   px(243, 140, 4, 4, skinG2);                       // her other hand on the box
-  // armrests over laps
+  // armrests over laps, each with a cup-holder ring
   for (const ax of [128, 192, 256]) {
     px(ax - 8, 134, 16, 6, '#544874');
     px(ax - 8, 134, 16, 2, '#6a5c96');
+    px(ax + 3, 135, 4, 3, '#3a3050'); px(ax + 4, 136, 2, 2, '#241c38');
     px(ax - 6, 140, 12, 22, '#2c2444');
+  }
+  // a popcorn kernel jumps when she startles
+  const popU = lin(t, 15.2, 15.9);
+  if (popU > 0 && popU < 1) {
+    px(238 - popU * 6, 134 - Math.sin(popU * Math.PI) * 10 + popU * 4, 2, 2, '#ffedbe');
   }
   // drink in the left armrest, his other hand beside it
   px(120, 126, 6, 9, '#c84a4a'); px(121, 124, 4, 2, '#e8e2d2'); px(123, 118, 1, 7, '#e8e2d2');
@@ -425,6 +443,9 @@ SCENES.push({
       const xx = (((k * 44 - t * 150) % (W + 44)) + (W + 44)) % (W + 44) - 22;
       px(xx, 187, 18, 2, rgba('#f4ead0', 0.75));
     }
+    // a manhole cover slips past now and then
+    const mhx = (((520 - t * 150) % 760) + 760) % 760 - 60;
+    px(mhx, 192, 10, 3, '#3c3848'); px(mhx + 2, 193, 6, 1, '#2c2838');
     // speed streaks
     for (let i = 0; i < 4; i++) {
       const sx = (((R(i) * W - t * 260) % (W + 60)) + (W + 60)) % (W + 60) - 30;
@@ -479,12 +500,16 @@ function rideBackdrop(i, t, a) {
       if (x % 20 === 0)
         px(x + 2, sag + 2, 3, 3, rgba(['#e86a5a', '#eac84e', '#6ab0a0'][(x / 20) % 3], a * 0.9));
     }
-    // sparkling water below
+    // sparkling water below, a sailboat drifting past
     px(0, 198, W, 18, rgba('#4e8ab0', a));
     for (let k = 0; k < 14; k++) {
       const wx = (((k * 30 + t * 12) % (W + 20)) + (W + 20)) % (W + 20) - 10;
       px(wx, 202 + R(k) * 10, 8, 1, rgba('#ffffff', a * 0.3 * (0.5 + 0.5 * Math.sin(t * 3 + k))));
     }
+    const sbx = (((t * 6) % (W + 60)) + (W + 60)) % (W + 60) - 30;
+    px(sbx, 204, 10, 3, rgba('#e8e2d2', a));
+    px(sbx + 4, 196, 1, 8, rgba('#8a7a5e', a));
+    px(sbx + 5, 197, 4, 5, rgba('#ffffff', a * 0.9)); px(sbx + 5, 197, 4, 1, rgba('#e86a5a', a));
   } else if (i === 1) {   // the city waking up
     vgrad(0, 0, W, 178, [[0, '#7ab8d8'], [0.75, '#cfeaf2'], [1, '#ffedbe']]);
     disc(300, 34, 7, '#fff6e2'); glow(300, 34, 34, '#fff3d8', 0.5 * a);
@@ -501,6 +526,10 @@ function rideBackdrop(i, t, a) {
       px(bx, 178 - bh, 62, bh, rgba('#7a84a8', a));
       px(bx, 178 - bh, 62, 3, rgba('#b8c2dc', a));
       px(bx + 58, 178 - bh, 4, bh, rgba('#a8b2cc', a));
+      if (k % 3 === 0) {            // rooftop water tank + antenna
+        px(bx + 10, 172 - bh, 9, 6, rgba('#8a94b8', a)); px(bx + 12, 169 - bh, 5, 3, rgba('#6a7492', a));
+        px(bx + 40, 166 - bh, 1, 12, rgba('#4e5878', a)); px(bx + 37, 168 - bh, 7, 1, rgba('#4e5878', a));
+      }
       for (let wI = 0; wI < 8; wI++)
         if (R(k * 13 + wI) > 0.4) px(bx + 6 + (wI % 3) * 16, 178 - bh + 10 + Math.floor(wI / 3) * 18, 5, 6, rgba('#525c7e', a * 0.8));
       if (R(k + 5) > 0.35) px(bx + 8, 160, 34, 5, rgba(['#c05848', '#4a8a6a', '#c8963f'][k % 3], a));
@@ -521,6 +550,12 @@ function rideBackdrop(i, t, a) {
       }
     const tx = (((520 - t * 90) % 900) + 900) % 900 - 150; // passing tree
     px(tx, 118, 5, 60, rgba('#6a4a34', a)); disc(tx + 2, 112, 16, rgba('#4e8a44', a));
+    // a water buffalo grazing, an egret at its side
+    const bfx = (((260 - t * 7) % (W + 200)) + (W + 200)) % (W + 200) - 100;
+    px(bfx, 156, 16, 7, rgba('#4a4048', a)); px(bfx + 13, 152, 5, 6, rgba('#4a4048', a));
+    px(bfx + 12, 151, 2, 2, rgba('#2e282e', a)); px(bfx + 17, 151, 2, 2, rgba('#2e282e', a));
+    px(bfx + 2, 163, 2, 4, rgba('#3a343c', a)); px(bfx + 11, 163, 2, 4, rgba('#3a343c', a));
+    px(bfx - 5, 155, 3, 6, rgba('#f4f8ff', a)); px(bfx - 5, 153, 2, 2, rgba('#f4f8ff', a));   // egret
     for (let k = 0; k < 10; k++) {  // butterflies
       const fx2 = (((R(k) * W - t * 24) % (W + 30)) + (W + 30)) % (W + 30) - 15 + Math.sin(t * 2.2 + k) * 5;
       const fy = 118 + R(k + 44) * 50 + Math.sin(t * 3.1 + k * 2) * 4;
@@ -539,11 +574,25 @@ function rideBackdrop(i, t, a) {
         const nearSun = clamp(1 - Math.abs(wx - 105) / 70, 0, 1);
         px(wx, 134 + r * 7, 8 + r * 2, 1, rgba('#ffffff', a * (0.15 + 0.3 * nearSun)));
       }
+    // sailboats out on the blue
+    for (let k = 0; k < 2; k++) {
+      const sb2 = (((k * 210 + t * 5) % (W + 80)) + (W + 80)) % (W + 80) - 40;
+      px(sb2, 140 + k * 9, 8, 2, rgba('#e8e2d2', a));
+      px(sb2 + 3, 133 + k * 9, 1, 7, rgba('#8a7a5e', a));
+      px(sb2 + 4, 134 + k * 9, 3, 4, rgba('#ffffff', a * 0.9));
+    }
     for (let k = 0; k < 6; k++) {   // guard posts
       const gx2 = (((k * 70 - t * 150) % (W + 70)) + (W + 70)) % (W + 70) - 35;
       px(gx2, 166, 3, 12, rgba('#e8e4d8', a)); px(gx2, 166, 3, 3, rgba('#e84a5a', a));
     }
     px(0, 198, W, 18, rgba('#d8c49a', a));
+    // a beach umbrella planted in the sand
+    const ux = (((300 - t * 150) % (W + 160)) + (W + 160)) % (W + 160) - 80;
+    px(ux, 196, 2, 14, rgba('#8a7a5e', a));
+    px(ux - 7, 194, 16, 3, rgba('#e86a5a', a));
+    px(ux - 4, 191, 10, 3, rgba('#e86a5a', a));
+    px(ux - 1, 189, 4, 2, rgba('#e86a5a', a));
+    px(ux - 4, 194, 3, 3, rgba('#f4ead0', a)); px(ux + 3, 194, 3, 3, rgba('#f4ead0', a));
   }
 }
 function rideBirds(t, n, a) {
@@ -576,6 +625,12 @@ SCENES.push({
       return;
     }
     vgrad(0, 0, W, H, [[0, '#0d0a1a'], [0.6, '#161030'], [1, '#0f0b20']]);
+    // dreamy bokeh drifting up through the dark
+    for (let i = 0; i < 8; i++) {
+      const bu = ((t * (2 + R(i + 500) * 3) * 0.02 + R(i + 510)) % 1);
+      glow(30 + R(i + 520) * 324 + Math.sin(t * 0.5 + i * 2) * 8, 200 - bu * 190,
+        3 + R(i + 530) * 6, i % 2 ? '#8a6ac0' : '#c06a8e', 0.10 * Math.sin(bu * Math.PI));
+    }
     // glowing dream-screen backdrop
     const bgPulse = 0.5 + 0.12 * Math.sin(t * 1.3) + 0.3 * seg(t, 12, 15);
     px(56, 18, 272, 104, '#221a3d');
@@ -584,6 +639,7 @@ SCENES.push({
     // floor reflection
     vgrad(0, GY, W, H - GY, [[0, '#1a1430'], [1, '#0c0918']]);
     glow(192, GY + 8, 90, '#6a4a9e', 0.12);
+    if (t >= 15 && t < 29) glow(192, GY + 6, 70, '#ff4d64', 0.10 * (1 - seg(t, 26.5, 29)));   // the heart mirrored in the floor
 
     // couple walks in
     const bxw = lerp(56, 150, seg(t, 0.5, 4.5));
@@ -728,9 +784,23 @@ function hugShot(t) {
   const puls = 0.75 + 0.1 * Math.sin(t * 1.8);
   glow(192, 120, 170, '#ff9a5f', 0.28 * puls);
   glow(192, 128, 90, '#ffd7de', 0.30 * puls);
+  // two soft columns of light falling on them
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (const lx of [150, 226]) {
+    g.fillStyle = rgba('#ffd7a0', 0.045 + 0.015 * Math.sin(t * 1.2 + lx));
+    g.beginPath(); g.moveTo(lx - 6, 0); g.lineTo(lx + 14, 0);
+    g.lineTo(lx + 30, 176); g.lineTo(lx - 22, 176); g.closePath(); g.fill();
+  }
+  g.restore();
   px(0, 176, W, 40, '#1c1026');
   hugPair(192, 176, {});
   shadow(192, 176, 26, 0.3);
+  // confetti among the petals
+  for (let i = 0; i < 14; i++) {
+    const cu = ((t * (10 + R(i + 600) * 8) * 0.08 + R(i + 610)) % 1);
+    px(30 + R(i + 620) * 324 + Math.sin(t * 1.6 + i) * 5, cu * 200,
+      2, 2, rgba(['#8ad2f0', '#ffe66e', '#b48aff', '#96da74'][i % 4], 0.8 * (1 - cu * 0.5)));
+  }
   petals(t + 4, 26, { x0: 20, x1: 364, y0: 6, y1: 200 }, 1);
   for (let i = 0; i < 10; i++) {
     const sx = 40 + R(i + 70) * 300, sy = 30 + R(i + 90) * 130;

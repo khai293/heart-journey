@@ -27,6 +27,10 @@ function cinemaRoom(t, o) {
   // screen
   const lum = o.screen || 0;
   px(SCR.x - 4, SCR.y - 4, SCR.w + 8, SCR.h + 8, '#060510');
+  px(SCR.x - 2, SCR.y - 2, SCR.w + 4, 1, mix('#3a2f18', '#8a6a2c', lum));   // gilded trim
+  px(SCR.x - 2, SCR.y + SCR.h + 1, SCR.w + 4, 1, mix('#3a2f18', '#8a6a2c', lum));
+  px(SCR.x - 2, SCR.y - 2, 1, SCR.h + 4, mix('#3a2f18', '#8a6a2c', lum));
+  px(SCR.x + SCR.w + 1, SCR.y - 2, 1, SCR.h + 4, mix('#3a2f18', '#8a6a2c', lum));
   const flick = 0.92 + 0.08 * Math.sin(t * 11.3) * Math.sin(t * 5.1);
   px(SCR.x, SCR.y, SCR.w, SCR.h, mix('#0e0b18', '#fff3dc', lum * flick));
   if (o.content) o.content(SCR);
@@ -68,6 +72,13 @@ function cinemaRoom(t, o) {
   if (o.midDraw) o.midDraw();          // walkers / couple heads live between row1 and row2
   seatRow(t, 186, 17, 13, 0.25, o, lum);
   seatRow(t, 204, 21, 14, 0.4, o, lum);
+  // little aisle lights along the steps
+  for (const ly of [166, 180, 196]) {
+    for (const lx2 of [4, W - 6]) {
+      px(lx2, ly, 2, 2, '#c8963f');
+      glow(lx2 + 1, ly + 1, 5, '#ffca7a', 0.35);
+    }
+  }
 }
 /* scattered audience heads, dim so the couple stays the focus */
 function extraHeads(lum, exclude) {
@@ -176,6 +187,7 @@ function drawRestaurant(t) {
   const GY = 178;
   // warm plaster walls of a little neighbourhood eatery
   vgrad(0, 0, W, GY, [[0, '#8a5c42'], [0.6, '#75503a'], [1, '#5e402e']]);
+  px(0, 0, W, 5, '#4a2e18'); px(0, 5, W, 1, '#3a2314');               // ceiling beam
   // glass window, bright morning outside
   px(296, 38, 62, 74, '#3a2318');
   vgrad(300, 42, 54, 66, [[0, '#9ed4ec'], [0.6, '#cfeaf2'], [1, '#ffe9c0']]);
@@ -197,13 +209,30 @@ function drawRestaurant(t) {
     px(13 + i * 8, 86, 3, 10, ['#4a7a5a', '#b0563a', '#69502e'][i % 3]);
   }
   px(4, 128, 84, 50, '#4a2c1c'); px(4, 128, 84, 3, '#6b4530');       // counter
-  steam(46, 124, t, 31, 5, 22, '#f4e3cc');
+  px(8, 116, 12, 12, '#3a3440'); px(10, 112, 8, 4, '#2c2834');       // register
+  px(11, 118, 6, 4, '#8ad2f0');
+  for (let i = 0; i < 3; i++) px(26, 122 - i * 4, 8, 3, '#ece4d0');  // stacked cups
+  px(44, 110, 26, 18, rgba('#bfe4f0', 0.30));                        // glass cake case
+  px(44, 110, 26, 1, '#8a94a8'); px(44, 127, 26, 1, '#8a94a8');
+  px(48, 120, 7, 6, '#ffd9e2'); px(49, 118, 5, 2, '#ff8aa5');        // little cakes
+  px(59, 121, 7, 5, '#e8c87a'); px(60, 119, 5, 2, '#8a5c3a');
+  steam(46, 108, t, 31, 4, 18, '#f4e3cc');
   // chalkboard menu
   px(106, 44, 46, 36, '#2a2018'); px(110, 48, 38, 28, '#26312a');
   px(114, 53, 20, 2, rgba('#e8e2c8', 0.7)); px(114, 59, 26, 2, rgba('#e8e2c8', 0.55)); px(114, 65, 16, 2, rgba('#e8e2c8', 0.6));
+  // side drapes on the window
+  px(294, 38, 5, 74, '#8a4436'); px(296, 38, 1, 74, '#6e3428');
+  px(357, 38, 5, 74, '#8a4436'); px(359, 38, 1, 74, '#6e3428');
   // potted plant in the corner
   px(344, GY - 12, 12, 12, '#7a4630');
   px(340, GY - 26, 6, 10, '#3f6b3a'); px(348, GY - 30, 6, 14, '#4a7a44'); px(354, GY - 24, 5, 9, '#3f6b3a');
+  // the shop cat, asleep in the sun
+  const catBr = Math.sin(t * 1.6) * 0.5;
+  px(318, GY - 5 - catBr, 12, 5 + catBr, '#e8a04a');
+  px(320, GY - 4, 3, 1, '#c8823a'); px(325, GY - 4, 3, 1, '#c8823a');  // stripes
+  px(327, GY - 7 - catBr, 5, 4, '#e8a04a');                            // head
+  px(327, GY - 8 - catBr, 1, 2, '#e8a04a'); px(330, GY - 8 - catBr, 1, 2, '#e8a04a'); // ears
+  px(314, GY - 3, 4, 2, '#e8a04a'); px(313, GY - 5, 2, 3, '#c8823a');  // curled tail
   // wall pictures and a little shelf
   px(170, 88, 26, 20, '#3a2318'); px(173, 91, 20, 14, '#c98a5a');
   px(176, 98, 6, 4, '#8a4436'); px(185, 94, 5, 5, '#4a7a5a');
@@ -295,6 +324,8 @@ function drawRestaurant(t) {
     steam(179, GY - 16, t, 7, 4, 8, '#fff3dc'); steam(207, GY - 16, t, 13, 4, 8, '#fff3dc');
     px(189, GY - 15, 7, 5, '#4a6e5a'); px(190, GY - 16, 4, 1, '#4a6e5a');  // teapot
     px(196, GY - 14, 2, 2, '#4a6e5a');
+    px(171, GY - 13, 3, 3, '#ece4d0'); px(212, GY - 13, 3, 3, '#ece4d0');  // tea cups
+    px(170, GY - 15, 1, 5, '#c8963f'); px(172, GY - 15, 1, 5, '#c8963f');  // chopsticks
   }
   // emotes
   if (t > 18 && t < 20) { note(158, GY - 38, '#ffd98a', pulse(t, 18, 18.4, 19.4, 20)); }
@@ -384,6 +415,11 @@ function drawLibrary(t) {
   px(0, GY, W, H - GY, '#8a7a5e');                               // worn wooden floor
   px(0, GY, W, 2, '#a8946e');
   for (let x = 16; x < W; x += 52) px(x, GY, 1, H - GY, '#75664c');
+  // fluorescent bars on the ceiling
+  for (const fx of [96, 292]) {
+    px(fx - 24, 6, 48, 3, '#e8ecf0'); px(fx - 24, 9, 48, 1, '#b8c4cc');
+    glow(fx, 9, 26, '#f4f8ff', 0.14);
+  }
   // ceiling fan, lazily turning
   px(145, 8, 3, 6, '#4a4438'); disc(146, 16, 3, '#5e5648');
   for (let b = 0; b < 3; b++) {
@@ -432,6 +468,11 @@ function drawLibrary(t) {
       px(wx + 17 - u * (26 + warm * 16) + Math.sin(t + i) * 3, 30 + u * (GY - 34), 1, 1, rgba('#ffe9c8', 0.35));
     }
   }
+  // a soft rug under the reading table
+  px(112, GY + 3, 168, 11, '#4a5e7a'); px(114, GY + 4, 164, 9, '#54688a');
+  for (let k = 0; k < 8; k++) px(122 + k * 20, GY + 8, 8, 1, rgba('#8a9ec0', 0.6));
+  // a potted fern on the middle window sill
+  px(178, 102, 10, 6, '#7a4630'); px(176, 96, 5, 6, '#4a7a44'); px(183, 94, 5, 8, '#3f6b3a');
   // classmates sharing the long table, heads down in revision
   chairSide(128, GY, 1); chairSide(252, GY, -1);
   person(132, GY, { who: 'boy', pose: 'sit', f: 1, seat: 7, arm: 'hold', sil: '#8a8ca0' });
@@ -459,6 +500,10 @@ function drawLibrary(t) {
   // globe at the table's end
   px(256, GY - 17, 5, 2, '#54371e'); px(258, GY - 19, 1, 2, '#54371e');
   disc(258, GY - 22, 4, '#4a8ac0'); px(256, GY - 24, 3, 2, '#4a8a5a'); px(259, GY - 21, 3, 2, '#4a8a5a');
+  // a green banker's lamp keeps them company
+  px(228, GY - 16, 8, 2, '#8c6a2c'); px(231, GY - 19, 2, 3, '#8c6a2c');
+  px(226, GY - 22, 12, 3, '#2e6a4a'); px(226, GY - 20, 12, 1, '#245a3c');
+  glow(232, GY - 19, 12, '#d8ffb0', 0.22);
   // page-flip glints on the shared book
   for (const ft of [6.5, 9.2, 13, 17.5, 21]) if (Math.abs(t - ft) < 0.25) px(187, GY - 18, 6, 2, rgba('#ffffff', 0.8));
   if (t > 13.5 && t < 16) note(184, GY - 44 - (t - 13.5) * 4, '#ff9dab', pulse(t, 13.5, 14, 15.2, 16));
@@ -515,10 +560,24 @@ function drawSunsetStreet(t) {
     for (let wI = 0; wI < 3; wI++)
       if (R(i * 9 + wI) > 0.5) px(bx + 6 + wI * 10, 156 - bh + R(i + wI + 4) * (bh - 20), 3, 3, rgba('#525c7e', 0.6));
   }
+  // street trees peeking over the hedge
+  for (const tx of [58, 148]) {
+    disc(tx, 136, 15, '#5e8a52'); disc(tx - 4, 130, 9, '#74a266');
+    px(tx + 3, 128, 2, 1, '#8ab87a');
+  }
   px(0, 150, W, 26, '#7a9a6a');                                    // hedge in the sun
   px(0, 150, W, 2, '#9ab884');
   px(0, GY, W, H - GY, '#8a8ea8');                                 // pavement
   px(0, GY, W, 2, '#a8acc0');
+  // a rain puddle still holding a piece of the sky
+  px(52, GY + 9, 30, 4, '#b8dce8'); px(56, GY + 8, 20, 1, '#cfeaf2');
+  px(60, GY + 10, 6, 1, '#fff6e2');
+  // bicycles at the rack
+  px(178, GY - 14, 2, 14, '#5e6878'); px(206, GY - 14, 2, 14, '#5e6878');
+  px(178, GY - 14, 30, 2, '#5e6878');
+  bikeSpr(186, GY, '#4a7ac0', '#8a8ea8'); bikeSpr(200, GY, '#c05f7a', '#8a8ea8');
+  // pigeons pecking at crumbs
+  pigeon(96, GY + 7, t, 0); pigeon(112, GY + 10, t, 1); pigeon(330, GY + 8, t, 2);
   petals(t, 7, { x0: 0, x1: W, y0: 60, y1: 168 }, 0.45);
   // ---- the parking lot ----
   // painted bay lines
@@ -648,6 +707,15 @@ function drawChatSplit(t) {
   px(112, 36, 30, 38, '#24304e');                                  // rocket poster
   px(124, 46, 6, 14, '#d8dce8'); px(125, 42, 4, 5, '#e86a5a');
   px(124, 60, 2, 4, '#ffca7a'); px(128, 60, 2, 4, '#ffca7a');
+  // glow-in-the-dark star stickers
+  for (let i = 0; i < 5; i++) {
+    const sx2 = 84 + R(i + 300) * 70, sy2 = 16 + R(i + 310) * 24;
+    px(sx2, sy2, 2, 2, rgba('#d8ff8a', 0.35 + 0.3 * Math.sin(t * 1.4 + i * 2)));
+  }
+  // rug + sneakers kicked off by the bed
+  px(58, 182, 66, 9, '#3e5a7a'); px(60, 183, 62, 7, '#4a688e');
+  px(36, 182, 8, 4, '#e8ecf0'); px(37, 181, 6, 2, '#4a7ac0');
+  px(46, 184, 8, 4, '#e8ecf0'); px(47, 183, 6, 2, '#4a7ac0');
   // bed
   px(24, 150, 128, 8, '#54371e'); px(26, 158, 6, 14, '#3e2a16'); px(142, 158, 6, 14, '#3e2a16');
   px(24, 140, 128, 10, '#7a84a8'); px(24, 140, 128, 2, '#9aa4c4');
@@ -673,10 +741,18 @@ function drawChatSplit(t) {
     px(302 + i * 22, 48, 10, 12, ['#c98a5a', '#7a9ab0', '#c05f7a'][i]);
   }
   px(206, 60, 16, 20, '#3e5a7a'); px(209, 54, 10, 8, '#4a7a5a');   // plant
+  // vanity mirror catching the fairy lights
+  px(230, 84, 16, 20, '#54371e'); px(232, 86, 12, 16, '#8a94b8');
+  px(233, 88, 4, 8, rgba('#cfeaf2', 0.6));
+  // rug on her side too
+  px(250, 184, 66, 9, '#8a4a62'); px(252, 185, 62, 7, '#a05a76');
   // bed (mirrored)
   px(232, 150, 128, 8, '#6b4530'); px(234, 158, 6, 14, '#4a2e18'); px(350, 158, 6, 14, '#4a2e18');
   px(232, 140, 128, 10, '#c08a9a'); px(232, 140, 128, 2, '#d8a4b4');
   px(332, 134, 24, 9, '#ffe4ea');                                  // pillow
+  // her teddy bear propped on the pillow
+  px(338, 128, 7, 7, '#c8963f'); px(337, 126, 2, 2, '#c8963f'); px(344, 126, 2, 2, '#c8963f');
+  px(340, 130, 3, 2, '#e8c87a'); px(339, 129, 1, 1, '#2c2834'); px(343, 129, 1, 1, '#2c2834');
   // her, hugging a pillow, phone glowing
   px(302, 128, 14, 10, '#ffd7de');                                 // hugged pillow
   person(292, 138, { who: 'girl', pose: 'sit', f: -1, seat: 4, arm: 'hold', shade: 0.2, blush: 0.4, bob: pulse(t, 3.2, 3.5, 4.4, 5) * 1.5 + pulse(t, 12.2, 12.5, 13.4, 14) * 1.5 });
@@ -715,6 +791,12 @@ function drawChatOffice(t) {
     px(bx, 90 - bh, 18, 2, '#a8b2cc');
   }
   px(274, 30, 4, 60, '#8a94a8'); px(210, 58, 132, 3, '#8a94a8');
+  for (let i = 0; i < 4; i++) px(210, 33 + i * 5, 132, 1, rgba('#e8ecf0', 0.5));   // blinds, half-open
+  // ceiling light bars
+  for (const fx of [90, 260]) { px(fx - 22, 4, 44, 3, '#e8ecf0'); glow(fx, 6, 22, '#f4f8ff', 0.12); }
+  // water cooler in the corner
+  px(8, GY - 34, 12, 34, '#c8d2d8'); px(10, GY - 44, 8, 10, rgba('#8ad2f0', 0.75));
+  px(11, GY - 42, 3, 6, rgba('#ffffff', 0.5)); px(12, GY - 26, 4, 3, '#5e6878');
   // clock + whiteboard with a little chart
   disc(60, 24, 7, '#ece4d0'); px(57, 23, 4, 2, '#4a4438'); px(59, 18, 2, 5, '#4a4438');
   px(28, 44, 70, 42, '#e8ecf0'); px(28, 44, 70, 3, '#8a94a8');
@@ -780,6 +862,9 @@ function deskSide(x0, x1, gy, t, kind) {
   px(x1 - 19, gy - 21, 2, 3, '#3a4050'); px(x1 - 21, gy - 19, 6, 1, '#3a4050');
   // keyboard on the desk
   px(x0 + 14, gy - 20, 13, 2, '#3a4050');
+  // paperwork and a sticky note
+  px(x0 + 4, gy - 20, 8, 2, '#f4f8ff'); px(x0 + 5, gy - 19, 6, 1, rgba('#8a94a8', 0.6));
+  px(x1 - 15, gy - 31, 3, 3, ['#ffedbe', '#d8ecc0', '#ffd9e2'][kind]);
 }
 /* ============================================================
    CH3 — sunrise over the sea                           (44 s)
@@ -820,6 +905,25 @@ SCENES.push({
         px(wx, wy, 7 + r, 1, rgba(c3('#3a3a6e', '#c98a8a', '#eef8fc'), 0.13 + 0.32 * nearSun));
       }
     }
+    // a lighthouse far down the coast, still turning
+    px(24, HOR - 24, 7, 24, mix('#ece4d0', '#4c3a72', (1 - sunUp) * 0.55));
+    px(24, HOR - 19, 7, 3, '#c04a3a'); px(24, HOR - 10, 7, 3, '#c04a3a');
+    px(25, HOR - 28, 5, 4, '#2c3450');
+    const lhA = (1 - ph) * (0.5 + 0.5 * Math.sin(t * 1.8));
+    if (lhA > 0.08) {
+      glow(27, HOR - 26, 10, '#ffe9a0', lhA * 0.8);
+      g.save(); g.globalCompositeOperation = 'lighter';
+      g.fillStyle = rgba('#ffe9a0', lhA * 0.10);
+      g.beginPath(); g.moveTo(28, HOR - 26);
+      g.lineTo(28 + 70, HOR - 34 + Math.sin(t * 0.9) * 10);
+      g.lineTo(28 + 70, HOR - 16 + Math.sin(t * 0.9) * 10);
+      g.closePath(); g.fill(); g.restore();
+    }
+    // a little fishing boat drifting home
+    const boatX = 205 + Math.sin(t * 0.22) * 8;
+    px(boatX, HOR - 2 + Math.sin(t * 1.1) * 0.6, 11, 3, '#2c3450');
+    px(boatX + 4, HOR - 8, 1, 6, '#2c3450');
+    px(boatX + 5, HOR - 8, 1, 1, rgba('#ffca7a', 0.5 + 0.5 * Math.sin(t * 2.6)));
     // morning glitter on the water
     if (sunUp > 0.4) for (let i = 0; i < 12; i++) {
       const gx3 = 84 + R(i + 120) * 160, gy3 = HOR + 4 + R(i + 140) * 36;
@@ -848,6 +952,9 @@ SCENES.push({
     // a low rock they sit on
     px(272, 143, 38, 7, c3('#150f1e', '#1a1326', '#2e2a3e'));
     px(274, 142, 34, 2, c3('#1e1730', '#241c38', '#3c3650'));
+    // two cups of something warm, and wildflowers in the grass
+    teacup(266, 148, t, 61); teacup(311, 148, t, 67);
+    px(276, 147, 1, 1, '#ffd9e2'); px(279, 148, 1, 1, '#fff6e2'); px(306, 147, 1, 1, '#ffd9e2');
     // the couple: dark against the night, lit as the sun finds them
     const lean = seg(t, 22, 25.5);
     const shade = 0.75 - 0.35 * sunUp;
